@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,7 +30,7 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 /**
  * Created by felipe.acerbi on 01/10/2015.
  */
-public class CollectionItemsActivity extends Activity {
+public class CollectionItemsActivity extends AppCompatActivity {
 
     private static final String KEY_LAYOUT_MANAGER = "layoutManager";
     private static final int SPAN_COUNT = 2;
@@ -53,6 +55,8 @@ public class CollectionItemsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collections);
 
+        setToolbar();
+
         this.savedInstanceState = savedInstanceState;
 
         Intent intent = getIntent();
@@ -61,6 +65,14 @@ public class CollectionItemsActivity extends Activity {
         } else {
             storage = new CollectionStorage();
         }
+
+    }
+
+    public void setToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(storage.getTitle());
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
     }
 
@@ -99,12 +111,6 @@ public class CollectionItemsActivity extends Activity {
         super.onStop();
 
         //TODO Save instance state.
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.collections, menu);
-        return true;
     }
 
     @Override
