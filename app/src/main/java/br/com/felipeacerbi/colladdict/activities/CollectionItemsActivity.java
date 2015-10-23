@@ -6,11 +6,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.AutoTransition;
+import android.transition.ChangeImageTransform;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -42,6 +50,10 @@ public class CollectionItemsActivity extends AppCompatActivity {
     private Bundle savedInstanceState;
     private CollectionAdapter collectionAdapter;
     private View view;
+    private CollapsingToolbarLayout coverPhoto;
+    private FloatingActionButton floatButton;
+    private TextView collectionTitle;
+    private TextView collectionDesc;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -53,9 +65,7 @@ public class CollectionItemsActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_collections);
-
-        setToolbar();
+        setContentView(R.layout.activity_scrolling);
 
         this.savedInstanceState = savedInstanceState;
 
@@ -66,24 +76,59 @@ public class CollectionItemsActivity extends AppCompatActivity {
             storage = new CollectionStorage();
         }
 
+        setToolbar();
+    }
+
+    @Override
+    public void onContentChanged() {
+        super.onContentChanged();
+        getWindow().setEnterTransition(new Fade());
+        coverPhoto = (CollapsingToolbarLayout) findViewById(R.id.collection_photo);
+        coverPhoto.setTransitionName("photo");
     }
 
     public void setToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(storage.getTitle());
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        collectionTitle = (TextView) findViewById(R.id.collection_title);
+        collectionDesc = (TextView) findViewById(R.id.collection_description);
+
+        collectionTitle.setText(storage.getTitle());
+        collectionDesc.setText(storage.getDescription());
+
+        if(storage.getPhotoPath() != null) {
+            if(storage.getPhotoPath().equals("3")) {
+                coverPhoto.setBackgroundResource(R.drawable.shells);
+            } else if(storage.getPhotoPath().equals("4")) {
+                coverPhoto.setBackgroundResource(R.drawable.cds);
+            } else {
+//            holder.getPhotoField().setImageURI(Uri.parse(storage.getPhotoPath()));
+                coverPhoto.setBackgroundResource(R.drawable.absolut_vodka_bottles);
+            }
+        } else {
+            coverPhoto.setBackgroundResource(R.drawable.beer_bottle_caps_collection);
+//            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon), 300, 400, true));
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        view = getLayoutInflater().inflate(R.layout.activity_collection_items, (ViewGroup) findViewById(R.id.container));
+        view = getLayoutInflater().inflate(R.layout.activity_collection_items, (ViewGroup) findViewById(R.id.list_items));
 
+        floatButton = (FloatingActionButton) findViewById(R.id.fab);
         recyclerView = (RecyclerView) view.findViewById(R.id.collection_list);
         emptyText = (TextView) view.findViewById(R.id.empty_text);
+
+        floatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
 
         layoutManager = new LinearLayoutManager(this);
         currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
@@ -154,5 +199,11 @@ public class CollectionItemsActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.scrollToPosition(scrollPosition);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        supportFinishAfterTransition();
     }
 }

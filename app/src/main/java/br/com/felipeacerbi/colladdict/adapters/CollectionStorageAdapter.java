@@ -1,7 +1,10 @@
 package br.com.felipeacerbi.colladdict.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +16,7 @@ import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.CollectionItemsActivity;
+import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 /**
@@ -63,7 +67,7 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         final CollectionStorage storage = storages.get(position);
 
         holder.getTitleField().setText(storages.get(position).getTitle());
@@ -83,12 +87,17 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
 //            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon), 300, 400, true));
         }
 
+        holder.itemView.setTransitionName("photo");
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Activity exit = (Activity) context;
+                Pair photo = Pair.create(holder.getPhotoField(), "photo");
+                Pair title = Pair.create(holder.getTitleField(), "title");
+                Pair desc = Pair.create(holder.getDescField(), "desc");
                 Intent intent = new Intent(context, CollectionItemsActivity.class);
                 intent.putExtra("storage", storage);
-                context.startActivity(intent);
+                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(exit, photo, title, desc).toBundle());
             }
         });
     }
