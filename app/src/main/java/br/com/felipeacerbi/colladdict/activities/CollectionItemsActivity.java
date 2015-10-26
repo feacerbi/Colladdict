@@ -22,10 +22,14 @@ import android.transition.Slide;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,10 +54,11 @@ public class CollectionItemsActivity extends AppCompatActivity {
     private Bundle savedInstanceState;
     private CollectionAdapter collectionAdapter;
     private View view;
-    private CollapsingToolbarLayout coverPhoto;
+    private ImageView coverPhoto;
     private FloatingActionButton floatButton;
     private TextView collectionTitle;
     private TextView collectionDesc;
+    private LinearLayout scrim;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -83,31 +88,40 @@ public class CollectionItemsActivity extends AppCompatActivity {
     public void onContentChanged() {
         super.onContentChanged();
         getWindow().setEnterTransition(new Fade());
-        coverPhoto = (CollapsingToolbarLayout) findViewById(R.id.collection_photo);
+        floatButton = (FloatingActionButton) findViewById(R.id.fab);
+        coverPhoto = (ImageView) findViewById(R.id.collection_photo);
+        collectionTitle = (TextView) findViewById(R.id.collection_title);
+        collectionDesc = (TextView) findViewById(R.id.collection_description);
+//        scrim = (LinearLayout) findViewById(R.id.scrim);
         coverPhoto.setTransitionName("photo");
+//        collectionTitle.setTransitionName("title");
+//        collectionDesc.setTransitionName("desc");
+//        scrim.setTransitionName("scrim");
     }
 
     public void setToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(storage.getTitle());
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
         setSupportActionBar(toolbar);
-
-        collectionTitle = (TextView) findViewById(R.id.collection_title);
-        collectionDesc = (TextView) findViewById(R.id.collection_description);
-
-        collectionTitle.setText(storage.getTitle());
-        collectionDesc.setText(storage.getDescription());
 
         if(storage.getPhotoPath() != null) {
             if(storage.getPhotoPath().equals("3")) {
-                coverPhoto.setBackgroundResource(R.drawable.shells);
+                coverPhoto.setImageResource(R.drawable.shells);
             } else if(storage.getPhotoPath().equals("4")) {
-                coverPhoto.setBackgroundResource(R.drawable.cds);
+                coverPhoto.setImageResource(R.drawable.cds);
             } else {
 //            holder.getPhotoField().setImageURI(Uri.parse(storage.getPhotoPath()));
-                coverPhoto.setBackgroundResource(R.drawable.absolut_vodka_bottles);
+                coverPhoto.setImageResource(R.drawable.absolut_vodka_bottles);
             }
         } else {
-            coverPhoto.setBackgroundResource(R.drawable.beer_bottle_caps_collection);
+            coverPhoto.setImageResource(R.drawable.beer_bottle_caps_collection);
 //            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon), 300, 400, true));
         }
     }
@@ -118,7 +132,6 @@ public class CollectionItemsActivity extends AppCompatActivity {
 
         view = getLayoutInflater().inflate(R.layout.activity_collection_items, (ViewGroup) findViewById(R.id.list_items));
 
-        floatButton = (FloatingActionButton) findViewById(R.id.fab);
         recyclerView = (RecyclerView) view.findViewById(R.id.collection_list);
         emptyText = (TextView) view.findViewById(R.id.empty_text);
 
@@ -127,8 +140,7 @@ public class CollectionItemsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-            }
-        });
+            }});
 
         layoutManager = new LinearLayoutManager(this);
         currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
@@ -151,11 +163,33 @@ public class CollectionItemsActivity extends AppCompatActivity {
         }
     }
 
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        int idealWidth = getWindow().getAttributes().width -
+//                floatButton.getWidth() +
+//                (int) getResources().getDimension(R.dimen.fab_margin) +
+//                (int) getResources().getDimension(R.dimen.fab_margin);
+//        Toast.makeText(this, "Ideal: " + String.valueOf(idealWidth), Toast.LENGTH_SHORT).show();
+//
+//        Toast.makeText(this, "Real: " + String.valueOf(collectionTitle.getWidth()), Toast.LENGTH_SHORT).show();
+//        collectionTitle.setWidth(idealWidth);
+//        collectionDesc.setWidth(idealWidth);
+//        Toast.makeText(this, "Real: " + String.valueOf(collectionTitle.getWidth()), Toast.LENGTH_SHORT).show();
+//    }
+
     @Override
     protected void onStop() {
         super.onStop();
 
         //TODO Save instance state.
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.collection_items, menu);
+        return true;
     }
 
     @Override

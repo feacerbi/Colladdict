@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         private final TextView titleField;
         private final TextView descField;
         private final ImageView photoField;
+        private final LinearLayout scrim;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -39,6 +41,7 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
             titleField = (TextView) itemView.findViewById(R.id.collection_title);
             descField = (TextView) itemView.findViewById(R.id.collection_description);
             photoField = (ImageView) itemView.findViewById(R.id.collection_photo);
+            scrim = (LinearLayout) itemView.findViewById(R.id.scrim);
 
         }
 
@@ -52,6 +55,10 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
 
         public ImageView getPhotoField() {
             return photoField;
+        }
+
+        public LinearLayout getScrim() {
+            return scrim;
         }
     }
 
@@ -70,6 +77,7 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final CollectionStorage storage = storages.get(position);
 
+        holder.getPhotoField().setScaleType(ImageView.ScaleType.CENTER_CROP);
         holder.getTitleField().setText(storages.get(position).getTitle());
         holder.getDescField().setText(storages.get(position).getDescription());
 
@@ -87,17 +95,17 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
 //            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon), 300, 400, true));
         }
 
-        holder.itemView.setTransitionName("photo");
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Activity exit = (Activity) context;
                 Pair photo = Pair.create(holder.getPhotoField(), "photo");
-                Pair title = Pair.create(holder.getTitleField(), "title");
-                Pair desc = Pair.create(holder.getDescField(), "desc");
+//                Pair title = Pair.create(holder.getTitleField(), "title");
+//                Pair desc = Pair.create(holder.getDescField(), "desc");
+                Pair scrim = Pair.create(holder.getScrim(), "scrim");
                 Intent intent = new Intent(context, CollectionItemsActivity.class);
                 intent.putExtra("storage", storage);
-                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(exit, photo, title, desc).toBundle());
+                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(exit, photo, scrim).toBundle());
             }
         });
     }
