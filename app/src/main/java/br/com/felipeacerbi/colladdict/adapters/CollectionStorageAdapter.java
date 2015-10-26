@@ -3,6 +3,7 @@ package br.com.felipeacerbi.colladdict.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
@@ -27,13 +28,13 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
 
     private final Context context;
     private List<CollectionStorage> storages;
+    private FloatingActionButton fab;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView titleField;
         private final TextView descField;
         private final ImageView photoField;
-        private final LinearLayout scrim;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -41,7 +42,6 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
             titleField = (TextView) itemView.findViewById(R.id.collection_title);
             descField = (TextView) itemView.findViewById(R.id.collection_description);
             photoField = (ImageView) itemView.findViewById(R.id.collection_photo);
-            scrim = (LinearLayout) itemView.findViewById(R.id.scrim);
 
         }
 
@@ -56,15 +56,17 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         public ImageView getPhotoField() {
             return photoField;
         }
-
-        public LinearLayout getScrim() {
-            return scrim;
-        }
     }
 
     public CollectionStorageAdapter(Context context, List<CollectionStorage> storages) {
         this.context = context;
         this.storages = storages;
+    }
+
+    public CollectionStorageAdapter(Context context, List<CollectionStorage> storages, FloatingActionButton fab) {
+        this.context = context;
+        this.storages = storages;
+        this.fab = fab;
     }
 
     @Override
@@ -99,13 +101,11 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
             @Override
             public void onClick(View v) {
                 Activity exit = (Activity) context;
-                Pair photo = Pair.create(holder.getPhotoField(), "photo");
-//                Pair title = Pair.create(holder.getTitleField(), "title");
-//                Pair desc = Pair.create(holder.getDescField(), "desc");
-                Pair scrim = Pair.create(holder.getScrim(), "scrim");
+                Pair photoPair = Pair.create(holder.getPhotoField(), "photo");
+                Pair fabPair = Pair.create(fab, "fab");
                 Intent intent = new Intent(context, CollectionItemsActivity.class);
                 intent.putExtra("storage", storage);
-                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(exit, photo, scrim).toBundle());
+                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(exit, photoPair, fabPair).toBundle());
             }
         });
     }

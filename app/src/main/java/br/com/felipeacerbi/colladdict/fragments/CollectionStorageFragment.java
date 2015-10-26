@@ -1,6 +1,8 @@
 package br.com.felipeacerbi.colladdict.fragments;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,6 +39,7 @@ public class CollectionStorageFragment extends Fragment {
 
     private List<CollectionStorage> storages;
     private TextView emptyText;
+    private FloatingActionButton fab;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -78,6 +81,15 @@ public class CollectionStorageFragment extends Fragment {
 
         recyclerView = (RecyclerView) collectionsList.findViewById(R.id.all_collections);
         emptyText = (TextView) collectionsList.findViewById(R.id.empty_text);
+        fab = (FloatingActionButton) collectionsList.findViewById(R.id.fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
 
         layoutManager = new LinearLayoutManager(getActivity());
         currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;

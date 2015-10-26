@@ -92,11 +92,8 @@ public class CollectionItemsActivity extends AppCompatActivity {
         coverPhoto = (ImageView) findViewById(R.id.collection_photo);
         collectionTitle = (TextView) findViewById(R.id.collection_title);
         collectionDesc = (TextView) findViewById(R.id.collection_description);
-//        scrim = (LinearLayout) findViewById(R.id.scrim);
         coverPhoto.setTransitionName("photo");
-//        collectionTitle.setTransitionName("title");
-//        collectionDesc.setTransitionName("desc");
-//        scrim.setTransitionName("scrim");
+        floatButton.setTransitionName("fab");
     }
 
     public void setToolbar() {
