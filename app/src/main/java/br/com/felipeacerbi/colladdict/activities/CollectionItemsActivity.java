@@ -3,6 +3,7 @@ package br.com.felipeacerbi.colladdict.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
@@ -59,6 +60,7 @@ public class CollectionItemsActivity extends AppCompatActivity {
     private TextView collectionTitle;
     private TextView collectionDesc;
     private LinearLayout scrim;
+    private CollapsingToolbarLayout collapToolbar;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -75,13 +77,12 @@ public class CollectionItemsActivity extends AppCompatActivity {
         this.savedInstanceState = savedInstanceState;
 
         Intent intent = getIntent();
-        if(intent != null) {
+        if(intent != null && intent.getExtras() != null) {
             storage = (CollectionStorage) intent.getExtras().get("storage");
         } else {
             storage = new CollectionStorage();
         }
 
-        setToolbar();
     }
 
     @Override
@@ -92,17 +93,23 @@ public class CollectionItemsActivity extends AppCompatActivity {
         coverPhoto = (ImageView) findViewById(R.id.collection_photo);
         collectionTitle = (TextView) findViewById(R.id.collection_title);
         collectionDesc = (TextView) findViewById(R.id.collection_description);
+        collapToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         coverPhoto.setTransitionName("photo");
         floatButton.setTransitionName("fab");
     }
 
     public void setToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        collapToolbar.setTitleEnabled(true);
+//        collapToolbar.setTitle(storage.getTitle());
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(storage.getTitle());
+        toolbar.setSubtitle(storage.getDescription());
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Back!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), toolbar.getSubtitle().toString(), Toast.LENGTH_SHORT).show();
                 onBackPressed();
             }
         });
@@ -126,6 +133,8 @@ public class CollectionItemsActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        setToolbar();
 
         view = getLayoutInflater().inflate(R.layout.activity_collection_items, (ViewGroup) findViewById(R.id.list_items));
 
@@ -234,7 +243,6 @@ public class CollectionItemsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         supportFinishAfterTransition();
     }
 }

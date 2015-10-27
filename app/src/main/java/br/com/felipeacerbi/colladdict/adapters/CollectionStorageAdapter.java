@@ -28,7 +28,6 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
 
     private final Context context;
     private List<CollectionStorage> storages;
-    private FloatingActionButton fab;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -63,12 +62,6 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         this.storages = storages;
     }
 
-    public CollectionStorageAdapter(Context context, List<CollectionStorage> storages, FloatingActionButton fab) {
-        this.context = context;
-        this.storages = storages;
-        this.fab = fab;
-    }
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.collection_storage_item, parent, false);
@@ -80,8 +73,8 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         final CollectionStorage storage = storages.get(position);
 
         holder.getPhotoField().setScaleType(ImageView.ScaleType.CENTER_CROP);
-        holder.getTitleField().setText(storages.get(position).getTitle());
-        holder.getDescField().setText(storages.get(position).getDescription());
+        holder.getTitleField().setText(storage.getTitle());
+        holder.getDescField().setText(storage.getDescription());
 
         if(storage.getPhotoPath() != null) {
             if(storage.getPhotoPath().equals("3")) {
@@ -102,10 +95,9 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
             public void onClick(View v) {
                 Activity exit = (Activity) context;
                 Pair photoPair = Pair.create(holder.getPhotoField(), "photo");
-                Pair fabPair = Pair.create(fab, "fab");
                 Intent intent = new Intent(context, CollectionItemsActivity.class);
                 intent.putExtra("storage", storage);
-                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(exit, photoPair, fabPair).toBundle());
+                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(exit, photoPair).toBundle());
             }
         });
     }

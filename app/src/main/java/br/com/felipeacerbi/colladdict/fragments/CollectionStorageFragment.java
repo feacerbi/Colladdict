@@ -1,9 +1,13 @@
 package br.com.felipeacerbi.colladdict.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
+import br.com.felipeacerbi.colladdict.activities.CollectionItemsActivity;
+import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.adapters.CollectionStorageAdapter;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
@@ -86,8 +92,12 @@ public class CollectionStorageFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+
+            Intent intent = new Intent(getActivity(), NewCollectionActivity.class);
+                getActivity().startActivity(intent);
+
             }
         });
 
@@ -143,7 +153,6 @@ public class CollectionStorageFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        mCardView = (CardView) view.findViewById(R.id.cardview);
     }
 
     @Override
