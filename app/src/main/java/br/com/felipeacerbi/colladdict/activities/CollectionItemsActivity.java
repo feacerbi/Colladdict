@@ -88,19 +88,20 @@ public class CollectionItemsActivity extends AppCompatActivity {
     @Override
     public void onContentChanged() {
         super.onContentChanged();
+
         getWindow().setEnterTransition(new Fade());
+
         floatButton = (FloatingActionButton) findViewById(R.id.fab);
         coverPhoto = (ImageView) findViewById(R.id.collection_photo);
         collectionTitle = (TextView) findViewById(R.id.collection_title);
         collectionDesc = (TextView) findViewById(R.id.collection_description);
         collapToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+
         coverPhoto.setTransitionName("photo");
         floatButton.setTransitionName("fab");
     }
 
     public void setToolbar() {
-//        collapToolbar.setTitleEnabled(true);
-//        collapToolbar.setTitle(storage.getTitle());
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(storage.getTitle());
         toolbar.setSubtitle(storage.getDescription());
@@ -169,26 +170,9 @@ public class CollectionItemsActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//
-//        int idealWidth = getWindow().getAttributes().width -
-//                floatButton.getWidth() +
-//                (int) getResources().getDimension(R.dimen.fab_margin) +
-//                (int) getResources().getDimension(R.dimen.fab_margin);
-//        Toast.makeText(this, "Ideal: " + String.valueOf(idealWidth), Toast.LENGTH_SHORT).show();
-//
-//        Toast.makeText(this, "Real: " + String.valueOf(collectionTitle.getWidth()), Toast.LENGTH_SHORT).show();
-//        collectionTitle.setWidth(idealWidth);
-//        collectionDesc.setWidth(idealWidth);
-//        Toast.makeText(this, "Real: " + String.valueOf(collectionTitle.getWidth()), Toast.LENGTH_SHORT).show();
-//    }
-
     @Override
     protected void onStop() {
         super.onStop();
-
         //TODO Save instance state.
     }
 

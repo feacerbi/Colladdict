@@ -71,7 +71,7 @@ public class Collections extends AppCompatActivity
             return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

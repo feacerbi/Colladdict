@@ -46,6 +46,7 @@ public class CollectionStorageFragment extends Fragment {
     private List<CollectionStorage> storages;
     private TextView emptyText;
     private FloatingActionButton fab;
+    private MenuItem layoutMenuItem;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -136,10 +137,12 @@ public class CollectionStorageFragment extends Fragment {
             case GRID_LAYOUT_MANAGER:
                 layoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
                 currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
+                if(layoutMenuItem != null) layoutMenuItem.setIcon(R.drawable.ic_view_stream_white_24dp);
                 break;
             case LINEAR_LAYOUT_MANAGER:
                 layoutManager = new LinearLayoutManager(getActivity());
                 currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+                if(layoutMenuItem != null) layoutMenuItem.setIcon(R.drawable.ic_view_module_white_24dp);
                 break;
             default:
                 layoutManager = new LinearLayoutManager(getActivity());
@@ -166,6 +169,7 @@ public class CollectionStorageFragment extends Fragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_change_layout:
+                layoutMenuItem = item;
                 currentLayoutManagerType = (currentLayoutManagerType == LayoutManagerType.LINEAR_LAYOUT_MANAGER) ?
                         LayoutManagerType.GRID_LAYOUT_MANAGER : LayoutManagerType.LINEAR_LAYOUT_MANAGER;
                 setRecyclerViewLayoutManager(currentLayoutManagerType);
