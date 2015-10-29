@@ -3,75 +3,99 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:showIn="@layout/activity_new_collection"
+    android:clipToPadding="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:showIn="@layout/activity_new_collection"
-    android:clipToPadding="false"
+    android:background="@android:color/white"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <LinearLayout
-        android:id="@+id/container"
-        android:layout_below="@id/collection_photo"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="28dp"
-        android:orientation="vertical" >
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:layout_marginRight="16dp"
-        android:orientation="horizontal">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="16dp"
-                android:scaleType="fitCenter"
-                android:alpha="0.54"
-                android:src="@drawable/ic_style_black_24dp"/>
-            <Spinner
-                android:id="@+id/collection_category"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_marginLeft="32dp"
-                android:spinnerMode="dropdown"
-                android:popupTheme="@style/AppTheme.PopupOverlay"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginRight="16dp"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="16dp"
-                android:scaleType="fitCenter"
-                android:alpha="0.54"
-                android:src="@drawable/ic_description_black_24dp"/>
-            <EditText
-                android:id="@+id/collection_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="32dp"
-                android:layout_gravity="center"
-                android:hint="Collection Title"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:paddingLeft="72dp"
-            android:layout_marginRight="16dp"
-            android:orientation="horizontal">
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:hint="Collection Description"/>
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/scrimToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignTop="@id/collection_photo"
+            android:background="@drawable/shape_scrim_toolbar">
+        </TextView>
+        <TextView
+            android:id="@+id/scrim"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignBottom="@id/collection_photo"
+            android:background="@drawable/shape_scrim">
+        </TextView>
+
+        <LinearLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/collection_photo"
+            android:background="@android:color/white"
+            android:orientation="vertical" >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginRight="16dp"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="16dp"
+                    android:scaleType="fitCenter"
+                    android:alpha="0.54"
+                    android:src="@drawable/ic_style_black_24dp"/>
+                <Spinner
+                    android:id="@+id/collection_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="32dp"
+                    android:spinnerMode="dropdown"
+                    android:popupTheme="@style/AppTheme.PopupOverlay"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginRight="16dp"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="16dp"
+                    android:scaleType="fitCenter"
+                    android:alpha="0.54"
+                    android:src="@drawable/ic_description_black_24dp"/>
+                <EditText
+                    android:id="@+id/collection_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="32dp"
+                    android:layout_gravity="center"
+
+                    android:hint="Collection Title"
+                    android:nestedScrollingEnabled="true"
+                    android:background="@null"
+                    android:autoText="true" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="72dp"
+                android:layout_marginRight="16dp"
+                android:orientation="horizontal">
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:hint="Collection Description"
+                    android:background="@null" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
 </android.support.v4.widget.NestedScrollView>

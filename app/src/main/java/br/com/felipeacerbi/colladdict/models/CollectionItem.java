@@ -11,6 +11,7 @@ public class CollectionItem implements Serializable {
     private String title;
     private String description;
     private String photoPath;
+    private long storageId;
 
     public long getId() {
         return id;
@@ -28,6 +29,10 @@ public class CollectionItem implements Serializable {
         return photoPath;
     }
 
+    public long getStorageId() {
+        return storageId;
+    }
+
     public void setId(long id) {
         this.id = id;
     }
@@ -42,6 +47,10 @@ public class CollectionItem implements Serializable {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    public void setStorageId(long storageId) {
+        this.storageId = storageId;
     }
 
     @Override

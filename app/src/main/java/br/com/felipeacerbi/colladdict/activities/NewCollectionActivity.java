@@ -22,8 +22,8 @@ import br.com.felipeacerbi.colladdict.R;
 public class NewCollectionActivity extends AppCompatActivity {
 
     private Spinner categoriesSpinner;
-    private EditText titleField;
     private Toolbar toolbar;
+    private TextView saveButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,18 +35,14 @@ public class NewCollectionActivity extends AppCompatActivity {
     public void onContentChanged() {
         getWindow().setEnterTransition(new Slide());
         categoriesSpinner = (Spinner) findViewById(R.id.collection_category);
-        titleField = (EditText) findViewById(R.id.collection_title);
-        titleField.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-            }
+        saveButton = (TextView) findViewById(R.id.save_button);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                toolbar.setTitle(titleField.getText().toString());
             }
         });
+        
         categoriesSpinner.setAdapter(ArrayAdapter.createFromResource(this, R.array.categories, R.layout.spinner_item));
         super.onContentChanged();
     }
@@ -54,7 +50,7 @@ public class NewCollectionActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        setToolbar("");
+        setToolbar("New Collection");
     }
 
     public void setToolbar(String title) {
@@ -64,7 +60,6 @@ public class NewCollectionActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Back!", Toast.LENGTH_SHORT).show();
                 onBackPressed();
             }
         });
@@ -84,7 +79,6 @@ public class NewCollectionActivity extends AppCompatActivity {
             case R.id.action_edit_photo:
                 return true;
             case android.R.id.home:
-                Toast.makeText(getApplicationContext(), "Back!", Toast.LENGTH_SHORT).show();
                 onBackPressed();
         }
 

@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class CollectionStorage implements Serializable {
 
+    private long id;
     private String title;
     private String description;
     private String photoPath;
@@ -31,6 +32,10 @@ public class CollectionStorage implements Serializable {
         collectionItems.remove(item);
     }
 
+    public long getId() {
+        return id;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -49,6 +54,10 @@ public class CollectionStorage implements Serializable {
 
     public String getPhotoPath() {
         return photoPath;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public void setTitle(String title) {
