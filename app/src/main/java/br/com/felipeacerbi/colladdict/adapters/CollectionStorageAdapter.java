@@ -102,6 +102,10 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         });
     }
 
+    public List<CollectionStorage> getStorages() {
+        return storages;
+    }
+
     @Override
     public int getItemCount() {
         return storages.size();

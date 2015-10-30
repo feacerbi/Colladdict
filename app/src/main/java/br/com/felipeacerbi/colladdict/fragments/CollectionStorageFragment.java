@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,31 +20,34 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.CollectionItemsActivity;
+import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.adapters.CollectionStorageAdapter;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
+import br.com.felipeacerbi.colladdict.tasks.LoadStoragesTask;
 
 /**
  * Created by felipe.acerbi on 28/09/2015.
  */
 public class CollectionStorageFragment extends Fragment {
 
-    private static final String ARG_SECTION_NUMBER = "section_number";
     private static final String KEY_LAYOUT_MANAGER = "layoutManager";
     private static final int SPAN_COUNT = 2;
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    private CollectionStorageAdapter collectionStorageAdapter;
 
     private List<CollectionStorage> storages;
+    private CollectionStorageAdapter collectionStorageAdapter;
     private TextView emptyText;
     private FloatingActionButton fab;
     private MenuItem layoutMenuItem;
@@ -74,11 +78,6 @@ public class CollectionStorageFragment extends Fragment {
         storages = new ArrayList<>();
 
         createDemoStorage();
-        createDemo2Storage();
-        createDemo4Storage();
-        createDemo3Storage();
-        createDemo2Storage();
-        createDemoStorage();
     }
 
     @Override
@@ -90,14 +89,16 @@ public class CollectionStorageFragment extends Fragment {
         emptyText = (TextView) collectionsList.findViewById(R.id.empty_text);
         fab = (FloatingActionButton) collectionsList.findViewById(R.id.fab);
 
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
 
-            Intent intent = new Intent(getActivity(), NewCollectionActivity.class);
-                getActivity().startActivity(intent);
+                Intent intent = new Intent(getActivity(), NewCollectionActivity.class);
+                getActivity().startActivityForResult(intent, Collections.REQUEST_NEW_COLLECTION_STORAGE);
 
             }
         });
@@ -109,20 +110,19 @@ public class CollectionStorageFragment extends Fragment {
             currentLayoutManagerType = (LayoutManagerType) savedInstanceState
                     .getSerializable(KEY_LAYOUT_MANAGER);
         }
+
         setRecyclerViewLayoutManager(currentLayoutManagerType);
 
-        collectionStorageAdapter = new CollectionStorageAdapter(getActivity(), storages);
-        recyclerView.setAdapter(collectionStorageAdapter);
-
-        if(collectionStorageAdapter.getItemCount() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            emptyText.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyText.setVisibility(View.GONE);
-        }
+        new LoadStoragesTask((Collections) getActivity(), recyclerView, emptyText, storages, collectionStorageAdapter).execute();
 
         return collectionsList;
+    }
+
+    public void reload(CollectionStorage storage) {
+        storages.add(storage);
+        recyclerView.getAdapter().notifyDataSetChanged();
+        recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount());
+
     }
 
     public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {
@@ -166,6 +166,7 @@ public class CollectionStorageFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Toast.makeText(getActivity(), "Click", Toast.LENGTH_SHORT).show();
         int id = item.getItemId();
         switch (id) {
             case R.id.action_change_layout:
@@ -173,11 +174,12 @@ public class CollectionStorageFragment extends Fragment {
                 currentLayoutManagerType = (currentLayoutManagerType == LayoutManagerType.LINEAR_LAYOUT_MANAGER) ?
                         LayoutManagerType.GRID_LAYOUT_MANAGER : LayoutManagerType.LINEAR_LAYOUT_MANAGER;
                 setRecyclerViewLayoutManager(currentLayoutManagerType);
+                return true;
             case R.id.action_settings:
                 return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     private void createDemoStorage() {
@@ -192,26 +194,23 @@ public class CollectionStorageFragment extends Fragment {
         createDemoItem(storage);
         createDemoItem(storage);
         storages.add(storage);
-    }
-    private void createDemo2Storage() {
-        CollectionStorage storage = new CollectionStorage();
-        storage.setTitle("Bottle Caps");
-        storage.setDescription("Collection description.");
-        storages.add(storage);
-    }
-    private void createDemo3Storage() {
-        CollectionStorage storage = new CollectionStorage();
-        storage.setTitle("Shells");
-        storage.setDescription("Collection description.");
-        storage.setPhotoPath("3");
-        storages.add(storage);
-    }
-    private void createDemo4Storage() {
-        CollectionStorage storage = new CollectionStorage();
-        storage.setTitle("CD's");
-        storage.setDescription("Collection description.");
-        storage.setPhotoPath("4");
-        storages.add(storage);
+
+        CollectionStorage storage2 = new CollectionStorage();
+        storage2.setTitle("Bottle Caps");
+        storage2.setDescription("Collection description.");
+        storages.add(storage2);
+
+        CollectionStorage storage3 = new CollectionStorage();
+        storage3.setTitle("Shells");
+        storage3.setDescription("Collection description.");
+        storage3.setPhotoPath("3");
+        storages.add(storage3);
+
+        CollectionStorage storage4 = new CollectionStorage();
+        storage4.setTitle("CD's");
+        storage4.setDescription("Collection description.");
+        storage4.setPhotoPath("4");
+        storages.add(storage4);
     }
 
     private void createDemoItem(CollectionStorage storage) {

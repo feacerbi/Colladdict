@@ -47,7 +47,7 @@ public final class CollectionsContract {
     private static final String COMMA_SEP = ",";
 
     private static final String SQL_CREATE_STORAGES_TABLE =
-            "CREATE TABLE " + CollectionStorages.TABLE_NAME + " (" +
+            "CREATE TABLE IF NOT EXISTS " + CollectionStorages.TABLE_NAME + " (" +
                     CollectionStorages._ID + INTEGER_TYPE + " PRIMARY KEY," +
                     CollectionStorages.COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
                     CollectionStorages.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
@@ -58,7 +58,7 @@ public final class CollectionsContract {
             "DROP TABLE IF EXISTS " + CollectionStorages.TABLE_NAME;
 
     private static final String SQL_CREATE_ITEMS_TABLE =
-            "CREATE TABLE " + CollectionStorages.TABLE_NAME + " (" +
+            "CREATE TABLE IF NOT EXISTS " + CollectionStorages.TABLE_NAME + " (" +
                     CollectionItems._ID + INTEGER_TYPE + " PRIMARY KEY," +
                     CollectionItems.COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
                     CollectionItems.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
@@ -189,7 +189,7 @@ public final class CollectionsContract {
                 selectionArgs);
     }
 
-    public List getCollectionStorages() {
+    public List<CollectionStorage> getCollectionStorages() {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
@@ -229,7 +229,7 @@ public final class CollectionsContract {
         return storages;
     }
 
-    public List getCollectionItems(long storageId) {
+    public List<CollectionItem> getCollectionItems(long storageId) {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 

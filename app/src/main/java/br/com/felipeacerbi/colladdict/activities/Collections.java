@@ -1,5 +1,7 @@
 package br.com.felipeacerbi.colladdict.activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,10 +17,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import br.com.felipeacerbi.colladdict.R;
+import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.fragments.CollectionStorageFragment;
+import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 public class Collections extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final int REQUEST_NEW_COLLECTION_STORAGE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +48,19 @@ public class Collections extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_NEW_COLLECTION_STORAGE && resultCode == Activity.RESULT_OK) {
+            CollectionStorage storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
+            ((CollectionStorageFragment) getSupportFragmentManager().findFragmentByTag("collection_storages")).reload(storage);
+        } else {
+//            if(saveState != null) {
+//                onRestoreInstanceState(saveState);
+//            }
+        }
     }
 
     @Override
@@ -84,7 +103,7 @@ public class Collections extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_collections) {
-            fragmentTransaction.replace(R.id.container, CollectionStorageFragment.newInstance());
+            fragmentTransaction.replace(R.id.container, CollectionStorageFragment.newInstance(), "collection_storages");
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
@@ -102,5 +121,9 @@ public class Collections extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public CollectionsApplication getApp() {
+        return (CollectionsApplication) getApplication();
     }
 }
