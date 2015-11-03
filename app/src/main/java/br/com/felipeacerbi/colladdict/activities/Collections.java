@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
@@ -55,6 +56,7 @@ public class Collections extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_NEW_COLLECTION_STORAGE && resultCode == Activity.RESULT_OK) {
             CollectionStorage storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
+            Toast.makeText(this, storage.getTitle(), Toast.LENGTH_SHORT).show();
             ((CollectionStorageFragment) getSupportFragmentManager().findFragmentByTag("collection_storages")).reload(storage);
         } else {
 //            if(saveState != null) {
@@ -75,7 +77,7 @@ public class Collections extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        return true;
+        return false;
     }
 
     @Override
@@ -90,7 +92,7 @@ public class Collections extends AppCompatActivity
             return true;
         }
 
-        return true;
+        return false;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

@@ -5,6 +5,12 @@
     tools:context=".CollectionItemsActivity">
 
     <item
+        android:id="@+id/action_more_info"
+        android:title="Info"
+        android:icon="@drawable/ic_info_white_24dp"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

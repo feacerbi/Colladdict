@@ -38,15 +38,15 @@ public class InsertStorageUIHelper {
 
         getInfo();
 
-        if(getModify()) {
-            ((TextView) nca.findViewById(R.id.save_button)).setText("MODIFY");
-        }
+//        if(getModify()) {
+//            ((TextView) nca.findViewById(R.id.save_button)).setText("MODIFY");
+//        }
     }
 
     public void getInfo() {
 
         titleField = (EditText) nca.findViewById(R.id.collection_title);
-        descField = (EditText) nca.findViewById(R.id.collection_title);
+        descField = (EditText) nca.findViewById(R.id.collection_description);
         categoryField = (Spinner) nca.findViewById(R.id.collection_category);
         categoryField.setAdapter(ArrayAdapter.createFromResource(nca, R.array.categories, R.layout.spinner_item));
         photo = (ImageView) nca.findViewById(R.id.collection_photo);

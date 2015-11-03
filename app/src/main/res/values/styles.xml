@@ -23,7 +23,9 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"></style>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
 
     <!--<style name="AppTheme.AppBarOverlayTransparent" parent="ThemeOverlay.AppCompat.Dark.ActionBar">-->
         <!--<item name="android:background">@android:color/transparent</item>-->

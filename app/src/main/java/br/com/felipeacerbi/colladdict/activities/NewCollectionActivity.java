@@ -38,6 +38,8 @@ public class NewCollectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_collection);
 
         uiHelper = new InsertStorageUIHelper(this);
+
+        setToolbar();
     }
 
     @Override
@@ -63,12 +65,11 @@ public class NewCollectionActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        setToolbar("New Collection");
     }
 
-    public void setToolbar(String title) {
+    public void setToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(title);
+        toolbar.setTitle("");
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

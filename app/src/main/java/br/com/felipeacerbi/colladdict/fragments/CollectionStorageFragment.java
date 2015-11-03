@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -74,6 +75,7 @@ public class CollectionStorageFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
         storages = new ArrayList<>();
 
@@ -119,8 +121,10 @@ public class CollectionStorageFragment extends Fragment {
     }
 
     public void reload(CollectionStorage storage) {
+        collectionStorageAdapter = (CollectionStorageAdapter) recyclerView.getAdapter();
+        storages = collectionStorageAdapter.getStorages();
         storages.add(storage);
-        recyclerView.getAdapter().notifyDataSetChanged();
+        collectionStorageAdapter.notifyDataSetChanged();
         recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount());
 
     }
@@ -166,7 +170,6 @@ public class CollectionStorageFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(getActivity(), "Click", Toast.LENGTH_SHORT).show();
         int id = item.getItemId();
         switch (id) {
             case R.id.action_change_layout:

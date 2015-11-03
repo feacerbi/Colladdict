@@ -6,8 +6,14 @@ import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -24,10 +30,11 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 /**
  * Created by felipe.acerbi on 28/09/2015.
  */
-public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionStorageAdapter.ViewHolder> {
+public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionStorageAdapter.ViewHolder>  implements ActionMode.Callback {
 
-    private final Context context;
+    private final AppCompatActivity context;
     private List<CollectionStorage> storages;
+    private boolean isActionMode = false;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -57,7 +64,7 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         }
     }
 
-    public CollectionStorageAdapter(Context context, List<CollectionStorage> storages) {
+    public CollectionStorageAdapter(AppCompatActivity context, List<CollectionStorage> storages) {
         this.context = context;
         this.storages = storages;
     }
@@ -93,13 +100,55 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Activity exit = (Activity) context;
+                if(isActionMode) {
+                    v.setSelected(!v.isSelected());
+                }
                 Pair photoPair = Pair.create(holder.getPhotoField(), "photo");
                 Intent intent = new Intent(context, CollectionItemsActivity.class);
                 intent.putExtra("storage", storage);
-                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(exit, photoPair).toBundle());
+                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(context, photoPair).toBundle());
             }
         });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                context.startSupportActionMode(CollectionStorageAdapter.this);
+                v.setSelected(true);
+                return true;
+            }
+        });;
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        MenuInflater inflater = mode.getMenuInflater();
+        inflater.inflate(R.menu.collections_context_menu, menu);
+        mode.setTitle("Select Collections | 1");
+        isActionMode = true;
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        mode.setTitle("Select Collections | 2");
+        switch (item.getItemId()) {
+            case R.id.action_remove_collection:
+                mode.finish(); // Action picked, so close the CAB
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        isActionMode = false;
     }
 
     public List<CollectionStorage> getStorages() {
@@ -109,5 +158,14 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
     @Override
     public int getItemCount() {
         return storages.size();
+    }
+
+    public int getItemsSelectedCount() {
+        int count = 0;
+
+        for(CollectionStorage storage : storages) {
+
+        }
+        return count;
     }
 }

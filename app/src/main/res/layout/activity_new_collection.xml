@@ -30,6 +30,22 @@
                 android:elevation="0dp"
                 android:src="@drawable/absolut_vodka_bottles"/>
 
+            <TextView
+                android:id="@+id/scrimTool"
+                android:layout_gravity="top"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@drawable/shape_scrim_toolbar">
+            </TextView>
+
+            <TextView
+                android:id="@+id/scrim"
+                android:layout_gravity="bottom"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@drawable/shape_scrim">
+            </TextView>
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
