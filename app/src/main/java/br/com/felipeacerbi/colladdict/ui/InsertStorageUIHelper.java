@@ -1,26 +1,23 @@
 package br.com.felipeacerbi.colladdict.ui;
 
 import android.os.Environment;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.io.File;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
-import br.com.felipeacerbi.colladdict.tasks.InsertStorageTask;
 
 /**
  * Created by felipe.acerbi on 30/10/2015.
  */
 public class InsertStorageUIHelper {
 
-    public static final String DEFAULT_PATH = Environment.getExternalStorageDirectory() + "/ScoreBoard/";
+    public static final String DEFAULT_PATH = Environment.getExternalStorageDirectory() + "/Colladdict/";
 
     private NewCollectionActivity nca;
     private EditText titleField;
@@ -29,8 +26,6 @@ public class InsertStorageUIHelper {
     private ImageView photo;
     private String path;
     private long id;
-    private TextView createButton;
-    CollectionStorage storage;
 
     public InsertStorageUIHelper(NewCollectionActivity nca) {
 
@@ -38,6 +33,7 @@ public class InsertStorageUIHelper {
 
         getInfo();
 
+        // TODO Modify Storage.
 //        if(getModify()) {
 //            ((TextView) nca.findViewById(R.id.save_button)).setText("MODIFY");
 //        }
@@ -101,6 +97,7 @@ public class InsertStorageUIHelper {
         this.path = path;
     }
 
+    // TODO Handle photo from camera/storage.
 //    public void setPhoto() {
 //        Ion.with(photo)
 //                .placeholder(R.drawable.ic_contact_picture_big)

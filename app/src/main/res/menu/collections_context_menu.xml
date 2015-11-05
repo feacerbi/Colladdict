@@ -8,6 +8,13 @@
         android:id="@+id/action_remove_collection"
         android:title="@string/action_remove_collection"
         android:orderInCategory="100"
-        android:icon="@drawable/ic_delete_black_24dp"
+        android:icon="@drawable/ic_delete_white_24dp"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_more_vert_white_24dp"
+        app:showAsAction="never" />
 </menu>

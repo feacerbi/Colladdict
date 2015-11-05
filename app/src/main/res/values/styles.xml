@@ -16,6 +16,7 @@
         <item name="android:windowSharedElementExitTransition">@transition/change_image_transform</item>
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -25,7 +26,17 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:actionModeBackground">@color/colorAccent</item>
+        <item name="android:actionModeStyle">@style/AppTheme.AppBarOverlay.ActionMode</item>
+        <item name="colorControlActivated">#00000000</item>
     </style>
+
+    <style name="AppTheme.AppBarOverlay.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="android:statusBarColor">@color/colorAccentDark</item>
+    </style>
+
+    <!--<style name="AppTheme.FloatingActionButton" parent="ThemeOverlay.AppCompat.Dark.ActionBar">-->
+    <!--</style>-->
 
     <!--<style name="AppTheme.AppBarOverlayTransparent" parent="ThemeOverlay.AppCompat.Dark.ActionBar">-->
         <!--<item name="android:background">@android:color/transparent</item>-->

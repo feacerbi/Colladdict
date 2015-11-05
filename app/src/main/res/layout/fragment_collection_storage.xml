@@ -1,10 +1,9 @@
-<RelativeLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".CollectionActivity$CollectionStorageFragment">
+    android:layout_height="match_parent" >
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/all_collections"
@@ -23,13 +22,15 @@
         android:gravity="center"
         android:text="Add a Collection."/>
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:layout_gravity="end|bottom"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/plus_sign" />
-
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

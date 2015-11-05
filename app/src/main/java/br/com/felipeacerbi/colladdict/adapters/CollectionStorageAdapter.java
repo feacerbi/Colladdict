@@ -1,40 +1,34 @@
 package br.com.felipeacerbi.colladdict.adapters;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextMenu;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.CollectionItemsActivity;
 import br.com.felipeacerbi.colladdict.activities.Collections;
+import br.com.felipeacerbi.colladdict.fragments.CollectionStorageFragment;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 /**
  * Created by felipe.acerbi on 28/09/2015.
  */
-public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionStorageAdapter.ViewHolder>  implements ActionMode.Callback {
+public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionStorageAdapter.ViewHolder> {
 
-    private final AppCompatActivity context;
+    private Collections context;
+    private CollectionStorageFragment fragment;
     private List<CollectionStorage> storages;
-    private boolean isActionMode = false;
+    private SparseBooleanArray selectedItems;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -48,7 +42,6 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
             titleField = (TextView) itemView.findViewById(R.id.collection_title);
             descField = (TextView) itemView.findViewById(R.id.collection_description);
             photoField = (ImageView) itemView.findViewById(R.id.collection_photo);
-
         }
 
         public TextView getTitleField() {
@@ -64,9 +57,11 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         }
     }
 
-    public CollectionStorageAdapter(AppCompatActivity context, List<CollectionStorage> storages) {
-        this.context = context;
+    public CollectionStorageAdapter(CollectionStorageFragment fragment, List<CollectionStorage> storages) {
+        this.fragment = fragment;
         this.storages = storages;
+        selectedItems = new SparseBooleanArray();
+        context = (Collections) fragment.getActivity();
     }
 
     @Override
@@ -76,13 +71,20 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         final CollectionStorage storage = storages.get(position);
 
         holder.getPhotoField().setScaleType(ImageView.ScaleType.CENTER_CROP);
         holder.getTitleField().setText(storage.getTitle());
         holder.getDescField().setText(storage.getDescription());
 
+        if(selectedItems.get(position, false)) {
+            holder.getPhotoField().setColorFilter(R.color.fadeImage);
+        } else {
+            holder.getPhotoField().setColorFilter(null);
+        }
+
+        // TODO Get Image from real source.
         if(storage.getPhotoPath() != null) {
             if(storage.getPhotoPath().equals("3")) {
                 holder.getPhotoField().setImageResource(R.drawable.shells);
@@ -100,55 +102,25 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isActionMode) {
-                    v.setSelected(!v.isSelected());
+                if (fragment.isActionMode()) {
+                    select(position);
+                } else {
+                    Pair photoPair = Pair.create(holder.getPhotoField(), "photo");
+                    Intent intent = new Intent(context, CollectionItemsActivity.class);
+                    intent.putExtra("storage", storage);
+                    context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(context, photoPair).toBundle());
                 }
-                Pair photoPair = Pair.create(holder.getPhotoField(), "photo");
-                Intent intent = new Intent(context, CollectionItemsActivity.class);
-                intent.putExtra("storage", storage);
-                context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(context, photoPair).toBundle());
             }
         });
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                context.startSupportActionMode(CollectionStorageAdapter.this);
-                v.setSelected(true);
+                context.startSupportActionMode(fragment);
+                select(position);
                 return true;
             }
-        });;
-    }
-
-    @Override
-    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.collections_context_menu, menu);
-        mode.setTitle("Select Collections | 1");
-        isActionMode = true;
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        return false;
-    }
-
-    @Override
-    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        mode.setTitle("Select Collections | 2");
-        switch (item.getItemId()) {
-            case R.id.action_remove_collection:
-                mode.finish(); // Action picked, so close the CAB
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    @Override
-    public void onDestroyActionMode(ActionMode mode) {
-        isActionMode = false;
+        });
     }
 
     public List<CollectionStorage> getStorages() {
@@ -160,12 +132,31 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         return storages.size();
     }
 
-    public int getItemsSelectedCount() {
-        int count = 0;
 
-        for(CollectionStorage storage : storages) {
-
+    public void select(int position) {
+        if(selectedItems.get(position, false)) {
+            selectedItems.delete(position);
+        } else {
+            selectedItems.put(position, true);
         }
-        return count;
+        notifyItemChanged(position);
+
+        int selectedCount = getSelectedItemsCount();
+        fragment.getActionMode().setTitle(String.valueOf(selectedCount));
+    }
+
+    public void deselectAll() {
+        selectedItems.clear();
+        notifyDataSetChanged();
+    }
+
+    public int getSelectedItemsCount(){ return selectedItems.size(); }
+
+    public List<CollectionStorage> getSelectedItems() {
+        List<CollectionStorage> items = new ArrayList<>(selectedItems.size());
+        for (int i = 0; i < selectedItems.size(); i++) {
+            items.add(storages.get(selectedItems.keyAt(i)));
+        }
+        return items;
     }
 }

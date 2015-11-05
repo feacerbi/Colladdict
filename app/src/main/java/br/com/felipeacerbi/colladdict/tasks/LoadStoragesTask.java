@@ -5,15 +5,13 @@ import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import br.com.felipeacerbi.colladdict.activities.Collections;
-import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.adapters.CollectionStorageAdapter;
 import br.com.felipeacerbi.colladdict.dbs.CollectionsContract;
+import br.com.felipeacerbi.colladdict.fragments.CollectionStorageFragment;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 /**
@@ -25,17 +23,18 @@ public class LoadStoragesTask extends AsyncTask<Void, Void, Void> {
     private RecyclerView recyclerView;
     private CollectionStorageAdapter adapter;
     private Collections col;
+    private CollectionStorageFragment fragment;
     private List<CollectionStorage> storages;
     private ProgressDialog progress;
 
 
-    public LoadStoragesTask(Collections col, RecyclerView recyclerView, TextView emptyText, List<CollectionStorage> storages, CollectionStorageAdapter adapter) {
+    public LoadStoragesTask(CollectionStorageFragment fragment, RecyclerView recyclerView, TextView emptyText, CollectionStorageAdapter adapter) {
 
-        this.col = col;
+        this.fragment = fragment;
         this.recyclerView = recyclerView;
         this.emptyText = emptyText;
-        this.storages = storages;
         this.adapter = adapter;
+        col = (Collections) fragment.getActivity();
         col.getApp().register(this);
     }
 
@@ -52,15 +51,16 @@ public class LoadStoragesTask extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... voids) {
 
         CollectionsContract contract = new CollectionsContract(col);
-        storages.clear();
         storages = contract.getCollectionStorages();
-        adapter = new CollectionStorageAdapter(col, storages);
+        adapter = new CollectionStorageAdapter(fragment, storages);
 
         return null;
     }
 
     @Override
     protected void onPostExecute(Void voids) {
+
+        recyclerView.setAdapter(adapter);
 
         if(adapter.getItemCount() == 0) {
             recyclerView.setVisibility(View.GONE);
@@ -69,8 +69,6 @@ public class LoadStoragesTask extends AsyncTask<Void, Void, Void> {
             recyclerView.setVisibility(View.VISIBLE);
             emptyText.setVisibility(View.GONE);
         }
-
-        recyclerView.setAdapter(adapter);
 
         col.getApp().unregister(this);
         progress.dismiss();

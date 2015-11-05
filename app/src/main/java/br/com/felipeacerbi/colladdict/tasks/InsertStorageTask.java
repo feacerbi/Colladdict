@@ -1,8 +1,9 @@
 package br.com.felipeacerbi.colladdict.tasks;
 
 import android.os.AsyncTask;
+import android.support.v7.app.AppCompatActivity;
 
-import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
+import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.dbs.CollectionsContract;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
@@ -11,27 +12,27 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
  */
 public class InsertStorageTask extends AsyncTask<CollectionStorage, Void, Void> {
 
-    NewCollectionActivity nca;
+    AppCompatActivity aca;
 
-    public InsertStorageTask(NewCollectionActivity nca) {
+    public InsertStorageTask(AppCompatActivity aca) {
 
-        this.nca = nca;
+        this.aca = aca;
 
-        nca.getApp().register(this);
+        ((CollectionsApplication) aca.getApplication()).register(this);
     }
 
     @Override
     protected Void doInBackground(CollectionStorage... storages) {
 
-        CollectionsContract contract = new CollectionsContract(nca);
+        CollectionsContract contract = new CollectionsContract(aca);
 
-        storages[0].setId(contract.insertCollectionStorage(storages[0]));
+        contract.insertCollectionStorage(storages[0]);
 
         return null;
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        nca.getApp().unregister(this);
+        ((CollectionsApplication) aca.getApplication()).unregister(this);
     }
 }

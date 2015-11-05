@@ -3,10 +3,8 @@ package br.com.felipeacerbi.colladdict.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
@@ -55,13 +52,13 @@ public class Collections extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_NEW_COLLECTION_STORAGE && resultCode == Activity.RESULT_OK) {
-            CollectionStorage storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
-            Toast.makeText(this, storage.getTitle(), Toast.LENGTH_SHORT).show();
-            ((CollectionStorageFragment) getSupportFragmentManager().findFragmentByTag("collection_storages")).reload(storage);
-        } else {
-//            if(saveState != null) {
-//                onRestoreInstanceState(saveState);
-//            }
+            final CollectionStorageFragment fragment = ((CollectionStorageFragment) getSupportFragmentManager().findFragmentByTag("collection_storages"));
+            final CollectionStorage storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
+            fragment.reloadAndScroll();
+            Snackbar.make(
+                    fragment.getView().findViewById(R.id.coordinator),
+                    storage.getTitle() + " collection added",
+                    Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -82,12 +79,8 @@ public class Collections extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -95,13 +88,11 @@ public class Collections extends AppCompatActivity
         return false;
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_collections) {

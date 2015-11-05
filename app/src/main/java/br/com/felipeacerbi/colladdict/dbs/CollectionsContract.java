@@ -26,7 +26,6 @@ public final class CollectionsContract {
 
     public static abstract class CollectionStorages implements BaseColumns {
         public static final String TABLE_NAME = "collectionstorages";
-        public static final String COLUMN_NAME_ID = "id";
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_CATEGORY = "category";
         public static final String COLUMN_NAME_DESCRIPTION = "description";
@@ -35,7 +34,6 @@ public final class CollectionsContract {
 
     public static abstract class CollectionItems implements BaseColumns {
         public static final String TABLE_NAME = "collectionitems";
-        public static final String COLUMN_NAME_ID = "id";
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_DESCRIPTION = "description";
         public static final String COLUMN_NAME_PHOTO_PATH = "photopath";
@@ -49,7 +47,6 @@ public final class CollectionsContract {
     private static final String SQL_CREATE_STORAGES_TABLE =
             "CREATE TABLE IF NOT EXISTS " + CollectionStorages.TABLE_NAME + " (" +
                     CollectionStorages._ID + INTEGER_TYPE + " PRIMARY KEY," +
-                    CollectionStorages.COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
                     CollectionStorages.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
                     CollectionStorages.COLUMN_NAME_CATEGORY + INTEGER_TYPE + COMMA_SEP +
                     CollectionStorages.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
@@ -60,7 +57,6 @@ public final class CollectionsContract {
     private static final String SQL_CREATE_ITEMS_TABLE =
             "CREATE TABLE IF NOT EXISTS " + CollectionStorages.TABLE_NAME + " (" +
                     CollectionItems._ID + INTEGER_TYPE + " PRIMARY KEY," +
-                    CollectionItems.COLUMN_NAME_ID + TEXT_TYPE + COMMA_SEP +
                     CollectionItems.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
                     CollectionItems.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
                     CollectionItems.COLUMN_NAME_PHOTO_PATH + TEXT_TYPE + COMMA_SEP +
@@ -96,7 +92,6 @@ public final class CollectionsContract {
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(CollectionStorages.COLUMN_NAME_ID, storage.getId());
         values.put(CollectionStorages.COLUMN_NAME_TITLE, storage.getTitle());
         values.put(CollectionStorages.COLUMN_NAME_CATEGORY, storage.getCategory());
         values.put(CollectionStorages.COLUMN_NAME_DESCRIPTION, storage.getDescription());
@@ -113,7 +108,6 @@ public final class CollectionsContract {
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(CollectionStorages.COLUMN_NAME_ID, item.getId());
         values.put(CollectionItems.COLUMN_NAME_TITLE, item.getTitle());
         values.put(CollectionItems.COLUMN_NAME_DESCRIPTION, item.getDescription());
         values.put(CollectionItems.COLUMN_NAME_PHOTO_PATH, item.getPhotoPath());
@@ -129,7 +123,7 @@ public final class CollectionsContract {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
-        String selection = CollectionStorages.COLUMN_NAME_ID + " LIKE ?";
+        String selection = CollectionStorages._ID + " LIKE ?";
         String[] selectionArgs = { String.valueOf(id) };
         return db.delete(
                 CollectionStorages.TABLE_NAME,
@@ -141,7 +135,7 @@ public final class CollectionsContract {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
-        String selection = CollectionItems.COLUMN_NAME_ID + " LIKE ?";
+        String selection = CollectionItems._ID + " LIKE ?";
         String[] selectionArgs = { String.valueOf(id) };
         return db.delete(
                 CollectionItems.TABLE_NAME,
@@ -159,7 +153,7 @@ public final class CollectionsContract {
         values.put(CollectionStorages.COLUMN_NAME_DESCRIPTION, storage.getDescription());
         values.put(CollectionStorages.COLUMN_NAME_PHOTO_PATH, storage.getPhotoPath());
 
-        String selection = CollectionStorages.COLUMN_NAME_ID + " LIKE ?";
+        String selection = CollectionStorages._ID + " LIKE ?";
         String[] selectionArgs = { String.valueOf(storage.getId()) };
 
         return db.update(
@@ -179,7 +173,7 @@ public final class CollectionsContract {
         values.put(CollectionItems.COLUMN_NAME_PHOTO_PATH, item.getPhotoPath());
         values.put(CollectionItems.COLUMN_NAME_STORAGE_ID, item.getStorageId());
 
-        String selection = CollectionItems.COLUMN_NAME_ID + " LIKE ?";
+        String selection = CollectionItems._ID + " LIKE ?";
         String[] selectionArgs = { String.valueOf(item.getId()) };
 
         return db.update(
@@ -196,7 +190,7 @@ public final class CollectionsContract {
         List<CollectionStorage> storages = new ArrayList<>();
 
         String[] projection = {
-                CollectionStorages.COLUMN_NAME_ID,
+                CollectionStorages._ID,
                 CollectionStorages.COLUMN_NAME_TITLE,
                 CollectionStorages.COLUMN_NAME_CATEGORY,
                 CollectionStorages.COLUMN_NAME_DESCRIPTION,
@@ -216,7 +210,7 @@ public final class CollectionsContract {
             do {
                 CollectionStorage storage = new CollectionStorage();
 
-                storage.setId(c.getLong(c.getColumnIndex(CollectionStorages.COLUMN_NAME_ID)));
+                storage.setId(c.getLong(c.getColumnIndex(CollectionStorages._ID)));
                 storage.setTitle(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_TITLE)));
                 storage.setCategory(c.getInt(c.getColumnIndex(CollectionStorages.COLUMN_NAME_CATEGORY)));
                 storage.setDescription(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_DESCRIPTION)));
@@ -236,7 +230,7 @@ public final class CollectionsContract {
         List<CollectionItem> items = new ArrayList<>();
 
         String[] projection = {
-                CollectionItems.COLUMN_NAME_ID,
+                CollectionItems._ID,
                 CollectionItems.COLUMN_NAME_TITLE,
                 CollectionItems.COLUMN_NAME_DESCRIPTION,
                 CollectionItems.COLUMN_NAME_PHOTO_PATH,
@@ -263,7 +257,7 @@ public final class CollectionsContract {
             do {
                 CollectionItem item = new CollectionItem();
 
-                item.setId(c.getLong(c.getColumnIndex(CollectionItems.COLUMN_NAME_ID)));
+                item.setId(c.getLong(c.getColumnIndex(CollectionItems._ID)));
                 item.setTitle(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_TITLE)));
                 item.setDescription(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_DESCRIPTION)));
                 item.setPhotoPath(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_PHOTO_PATH)));

@@ -1,12 +1,7 @@
 package br.com.felipeacerbi.colladdict.activities;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,15 +10,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.transition.AutoTransition;
-import android.transition.ChangeImageTransform;
-import android.transition.Explode;
 import android.transition.Fade;
-import android.transition.Slide;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,12 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.adapters.CollectionAdapter;
-import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 /**
@@ -116,6 +100,7 @@ public class CollectionItemsActivity extends AppCompatActivity {
         });
         setSupportActionBar(toolbar);
 
+        // TODO Get Image from real source.
         if(storage.getPhotoPath() != null) {
             if(storage.getPhotoPath().equals("3")) {
                 coverPhoto.setImageResource(R.drawable.shells);
