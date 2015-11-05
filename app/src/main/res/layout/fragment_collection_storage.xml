@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/all_collections"
@@ -21,10 +21,6 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:text="Add a Collection."/>
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

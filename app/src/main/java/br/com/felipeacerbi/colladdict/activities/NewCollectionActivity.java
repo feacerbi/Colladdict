@@ -53,15 +53,9 @@ public class NewCollectionActivity extends AppCompatActivity {
         super.onContentChanged();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
     public void setToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,8 +75,6 @@ public class NewCollectionActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_edit_photo:
-                return true;
             case android.R.id.home:
                 onBackPressed();
         }

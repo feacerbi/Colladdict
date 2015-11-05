@@ -6,6 +6,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="action_edit_photo">Edit Photo</string>
+    <string name="action_edit_collection">Edit Collection</string>
     <string name="action_remove_collection">Remove Collection</string>
 
     <string-array name="categories">
@@ -15,5 +16,7 @@
         <item>Games</item>
         <item>Movies</item>
     </string-array>
+
+    <string name="button_create_storage">CREATE</string>
 
 </resources>

@@ -3,11 +3,4 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".NewCollectionActivity">
-
-    <item
-        android:id="@+id/action_edit_photo"
-        android:title="@string/action_edit_photo"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_edit_white_24dp"
-        app:showAsAction="ifRoom" />
 </menu>

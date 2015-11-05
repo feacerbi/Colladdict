@@ -45,6 +45,7 @@ public class CollectionItemsActivity extends AppCompatActivity {
     private TextView collectionDesc;
     private LinearLayout scrim;
     private CollapsingToolbarLayout collapToolbar;
+    private Toolbar toolbar;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -67,11 +68,11 @@ public class CollectionItemsActivity extends AppCompatActivity {
             storage = new CollectionStorage();
         }
 
+        setToolbar();
     }
 
     @Override
     public void onContentChanged() {
-        super.onContentChanged();
 
         getWindow().setEnterTransition(new Fade());
 
@@ -80,21 +81,54 @@ public class CollectionItemsActivity extends AppCompatActivity {
         collectionTitle = (TextView) findViewById(R.id.collection_title);
         collectionDesc = (TextView) findViewById(R.id.collection_description);
         collapToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        view = getLayoutInflater().inflate(R.layout.collection_items, (ViewGroup) findViewById(R.id.container));
+        recyclerView = (RecyclerView) view.findViewById(R.id.all_items);
+        emptyText = (TextView) view.findViewById(R.id.empty_text);
 
         coverPhoto.setTransitionName("photo");
-        floatButton.setTransitionName("fab");
+
+        floatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        layoutManager = new LinearLayoutManager(this);
+        currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+
+        if (savedInstanceState != null) {
+            currentLayoutManagerType = (LayoutManagerType) savedInstanceState
+                    .getSerializable(KEY_LAYOUT_MANAGER);
+        }
+        setRecyclerViewLayoutManager(currentLayoutManagerType);
+
+        super.onContentChanged();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        collectionAdapter = new CollectionAdapter(this, storage.getCollectionItems());
+        recyclerView.setAdapter(collectionAdapter);
+
+        if(collectionAdapter.getItemCount() == 0) {
+            recyclerView.setVisibility(View.GONE);
+            emptyText.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyText.setVisibility(View.GONE);
+        }
     }
 
     public void setToolbar() {
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(storage.getTitle());
-        toolbar.setSubtitle(storage.getDescription());
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Back!", Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), toolbar.getSubtitle().toString(), Toast.LENGTH_SHORT).show();
                 onBackPressed();
             }
         });
@@ -117,51 +151,6 @@ public class CollectionItemsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        setToolbar();
-
-        view = getLayoutInflater().inflate(R.layout.activity_collection_items, (ViewGroup) findViewById(R.id.list_items));
-
-        recyclerView = (RecyclerView) view.findViewById(R.id.collection_list);
-        emptyText = (TextView) view.findViewById(R.id.empty_text);
-
-        floatButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }});
-
-        layoutManager = new LinearLayoutManager(this);
-        currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
-
-        if (savedInstanceState != null) {
-            currentLayoutManagerType = (LayoutManagerType) savedInstanceState
-                    .getSerializable(KEY_LAYOUT_MANAGER);
-        }
-        setRecyclerViewLayoutManager(currentLayoutManagerType);
-
-        collectionAdapter = new CollectionAdapter(this, storage.getCollectionItems());
-        recyclerView.setAdapter(collectionAdapter);
-
-        if(collectionAdapter.getItemCount() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            emptyText.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyText.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        //TODO Save instance state.
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.collection_items, menu);
         return true;
@@ -177,8 +166,6 @@ public class CollectionItemsActivity extends AppCompatActivity {
                 setRecyclerViewLayoutManager(currentLayoutManagerType);
             case R.id.action_settings:
                 return true;
-            case android.R.id.home:
-                finish();
         }
 
         return super.onOptionsItemSelected(item);
