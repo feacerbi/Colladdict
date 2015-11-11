@@ -9,6 +9,9 @@
     <string name="action_edit_collection">Edit Collection</string>
     <string name="action_remove_collection">Remove Collection</string>
 
+    <string name="add_button">Add</string>
+    <string name="cancel_button">Cancel</string>
+
     <string-array name="categories">
         <item>Default</item>
         <item>Bottles</item>

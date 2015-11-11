@@ -17,23 +17,21 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 /**
  * Created by felipe.acerbi on 30/10/2015.
  */
-public class LoadStoragesTask extends AsyncTask<Void, Void, Void> {
+public class LoadStoragesTask extends AsyncTask<Void, Void, CollectionStorageAdapter> {
 
     private TextView emptyText;
     private RecyclerView recyclerView;
-    private CollectionStorageAdapter adapter;
     private Collections col;
     private CollectionStorageFragment fragment;
     private List<CollectionStorage> storages;
     private ProgressDialog progress;
 
 
-    public LoadStoragesTask(CollectionStorageFragment fragment, RecyclerView recyclerView, TextView emptyText, CollectionStorageAdapter adapter) {
+    public LoadStoragesTask(CollectionStorageFragment fragment, RecyclerView recyclerView, TextView emptyText) {
 
         this.fragment = fragment;
         this.recyclerView = recyclerView;
         this.emptyText = emptyText;
-        this.adapter = adapter;
         col = (Collections) fragment.getActivity();
         col.getApp().register(this);
     }
@@ -48,17 +46,17 @@ public class LoadStoragesTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
+    protected CollectionStorageAdapter doInBackground(Void... voids) {
 
         CollectionsContract contract = new CollectionsContract(col);
         storages = contract.getCollectionStorages();
-        adapter = new CollectionStorageAdapter(fragment, storages);
+        CollectionStorageAdapter adapter = new CollectionStorageAdapter(fragment, storages);
 
-        return null;
+        return adapter;
     }
 
     @Override
-    protected void onPostExecute(Void voids) {
+    protected void onPostExecute(CollectionStorageAdapter adapter) {
 
         recyclerView.setAdapter(adapter);
 

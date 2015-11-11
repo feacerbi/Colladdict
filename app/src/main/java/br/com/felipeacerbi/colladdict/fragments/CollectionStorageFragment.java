@@ -108,11 +108,11 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     }
 
     public void reload() {
-        new LoadStoragesTask(this, recyclerView, emptyText, collectionStorageAdapter).execute();
+        new LoadStoragesTask(this, recyclerView, emptyText).execute();
     }
 
     public void reloadAndScroll() {
-        new LoadStoragesTask(this, recyclerView, emptyText, collectionStorageAdapter).execute();
+        new LoadStoragesTask(this, recyclerView, emptyText).execute();
 
         collectionStorageAdapter = (CollectionStorageAdapter) recyclerView.getAdapter();
         // TODO Fix scroll to position.
@@ -178,13 +178,13 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
             case R.id.action_remove_collection:
                 deleteList = collectionStorageAdapter.getSelectedItems();
                 new RemoveStorageTask((Collections) getActivity()).execute(deleteList);
-                new LoadStoragesTask(this, recyclerView, emptyText, collectionStorageAdapter).execute();
+                new LoadStoragesTask(this, recyclerView, emptyText).execute();
                 Snackbar.make(getView().findViewById(R.id.coordinator), "Collections removed", Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 for (CollectionStorage storage : deleteList) {
-                                    new InsertStorageTask((Collections) getActivity()).execute(storage);
+                                    new InsertStorageTask((Collections) getActivity(), false).execute(storage);
                                 }
                                 reloadAndScroll();
                             }

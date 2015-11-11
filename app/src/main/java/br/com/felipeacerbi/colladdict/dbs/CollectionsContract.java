@@ -10,6 +10,7 @@ import android.provider.BaseColumns;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.felipeacerbi.colladdict.models.Category;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
@@ -27,9 +28,9 @@ public final class CollectionsContract {
     public static abstract class CollectionStorages implements BaseColumns {
         public static final String TABLE_NAME = "collectionstorages";
         public static final String COLUMN_NAME_TITLE = "title";
-        public static final String COLUMN_NAME_CATEGORY = "category";
         public static final String COLUMN_NAME_DESCRIPTION = "description";
         public static final String COLUMN_NAME_PHOTO_PATH = "photopath";
+        public static final String COLUMN_NAME_CATEGORY_ID = "categoryId";
     }
 
     public static abstract class CollectionItems implements BaseColumns {
@@ -40,6 +41,11 @@ public final class CollectionsContract {
         public static final String COLUMN_NAME_STORAGE_ID = "storageid";
     }
 
+    public static abstract class Categories implements BaseColumns {
+        public static final String TABLE_NAME = "categories";
+        public static final String COLUMN_NAME_TITLE = "title";
+    }
+
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
@@ -48,9 +54,9 @@ public final class CollectionsContract {
             "CREATE TABLE IF NOT EXISTS " + CollectionStorages.TABLE_NAME + " (" +
                     CollectionStorages._ID + INTEGER_TYPE + " PRIMARY KEY," +
                     CollectionStorages.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
-                    CollectionStorages.COLUMN_NAME_CATEGORY + INTEGER_TYPE + COMMA_SEP +
                     CollectionStorages.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
-                    CollectionStorages.COLUMN_NAME_PHOTO_PATH + TEXT_TYPE + " )";
+                    CollectionStorages.COLUMN_NAME_PHOTO_PATH + TEXT_TYPE + COMMA_SEP +
+                    CollectionStorages.COLUMN_NAME_CATEGORY_ID + INTEGER_TYPE + " )";
     private static final String SQL_DELETE_STORAGES_TABLE =
             "DROP TABLE IF EXISTS " + CollectionStorages.TABLE_NAME;
 
@@ -63,6 +69,13 @@ public final class CollectionsContract {
                     CollectionItems.COLUMN_NAME_STORAGE_ID + INTEGER_TYPE + " )";
     private static final String SQL_DELETE_ITEMS_TABLE =
             "DROP TABLE IF EXISTS " + CollectionItems.TABLE_NAME;
+
+    private static final String SQL_CREATE_CATEGORIES_TABLE =
+            "CREATE TABLE IF NOT EXISTS " + Categories.TABLE_NAME + " (" +
+                    Categories._ID + INTEGER_TYPE + " PRIMARY KEY," +
+                    Categories.COLUMN_NAME_TITLE + TEXT_TYPE + " )";
+    private static final String SQL_DELETE_CATEGORIES_TABLE =
+            "DROP TABLE IF EXISTS " + Categories.TABLE_NAME;
 
     public class CollectionsDbHelper extends SQLiteOpenHelper {
 
@@ -77,12 +90,14 @@ public final class CollectionsContract {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(SQL_CREATE_STORAGES_TABLE);
             db.execSQL(SQL_CREATE_ITEMS_TABLE);
+            db.execSQL(SQL_CREATE_CATEGORIES_TABLE);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL(SQL_DELETE_STORAGES_TABLE);
             db.execSQL(SQL_DELETE_ITEMS_TABLE);
+            db.execSQL(SQL_DELETE_CATEGORIES_TABLE);
             onCreate(db);
         }
     }
@@ -93,9 +108,9 @@ public final class CollectionsContract {
 
         ContentValues values = new ContentValues();
         values.put(CollectionStorages.COLUMN_NAME_TITLE, storage.getTitle());
-        values.put(CollectionStorages.COLUMN_NAME_CATEGORY, storage.getCategory());
         values.put(CollectionStorages.COLUMN_NAME_DESCRIPTION, storage.getDescription());
         values.put(CollectionStorages.COLUMN_NAME_PHOTO_PATH, storage.getPhotoPath());
+        values.put(CollectionStorages.COLUMN_NAME_CATEGORY_ID, storage.getCategory().getId());
 
         return db.insert(
                 CollectionStorages.TABLE_NAME,
@@ -119,6 +134,19 @@ public final class CollectionsContract {
                 values);
     }
 
+    public long insertCategory(Category category) {
+        CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
+        SQLiteDatabase db = csDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Categories.COLUMN_NAME_TITLE, category.getTitle());
+
+        return db.insert(
+                Categories.TABLE_NAME,
+                null,
+                values);
+    }
+
     public int deleteCollectionStorage(long id) {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
@@ -127,6 +155,18 @@ public final class CollectionsContract {
         String[] selectionArgs = { String.valueOf(id) };
         return db.delete(
                 CollectionStorages.TABLE_NAME,
+                selection,
+                selectionArgs);
+    }
+
+    public int deleteCategory(long id) {
+        CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
+        SQLiteDatabase db = csDbHelper.getWritableDatabase();
+
+        String selection = Categories._ID + " LIKE ?";
+        String[] selectionArgs = { String.valueOf(id) };
+        return db.delete(
+                Categories.TABLE_NAME,
                 selection,
                 selectionArgs);
     }
@@ -149,9 +189,9 @@ public final class CollectionsContract {
 
         ContentValues values = new ContentValues();
         values.put(CollectionStorages.COLUMN_NAME_TITLE, storage.getTitle());
-        values.put(CollectionStorages.COLUMN_NAME_CATEGORY, storage.getCategory());
         values.put(CollectionStorages.COLUMN_NAME_DESCRIPTION, storage.getDescription());
         values.put(CollectionStorages.COLUMN_NAME_PHOTO_PATH, storage.getPhotoPath());
+        values.put(CollectionStorages.COLUMN_NAME_CATEGORY_ID, storage.getCategory().getId());
 
         String selection = CollectionStorages._ID + " LIKE ?";
         String[] selectionArgs = { String.valueOf(storage.getId()) };
@@ -183,18 +223,36 @@ public final class CollectionsContract {
                 selectionArgs);
     }
 
+    public int updateCategory(Category category) {
+        CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
+        SQLiteDatabase db = csDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Categories.COLUMN_NAME_TITLE, category.getTitle());
+
+        String selection = Categories._ID + " LIKE ?";
+        String[] selectionArgs = { String.valueOf(category.getId()) };
+
+        return db.update(
+                Categories.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+
     public List<CollectionStorage> getCollectionStorages() {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
         List<CollectionStorage> storages = new ArrayList<>();
+        List<Category> categories = getCategories();
 
         String[] projection = {
                 CollectionStorages._ID,
                 CollectionStorages.COLUMN_NAME_TITLE,
-                CollectionStorages.COLUMN_NAME_CATEGORY,
                 CollectionStorages.COLUMN_NAME_DESCRIPTION,
-                CollectionStorages.COLUMN_NAME_PHOTO_PATH};
+                CollectionStorages.COLUMN_NAME_PHOTO_PATH,
+                CollectionStorages.COLUMN_NAME_CATEGORY_ID,};
 
         Cursor c = db.query(
                 CollectionStorages.TABLE_NAME,  // The table to query
@@ -212,9 +270,9 @@ public final class CollectionsContract {
 
                 storage.setId(c.getLong(c.getColumnIndex(CollectionStorages._ID)));
                 storage.setTitle(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_TITLE)));
-                storage.setCategory(c.getInt(c.getColumnIndex(CollectionStorages.COLUMN_NAME_CATEGORY)));
                 storage.setDescription(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_DESCRIPTION)));
                 storage.setPhotoPath(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_PHOTO_PATH)));
+                storage.setCategory(categories.get(c.getInt(c.getColumnIndex(CollectionStorages.COLUMN_NAME_CATEGORY_ID))));
 
                 storages.add(storage);
             } while(c.moveToNext());
@@ -268,5 +326,45 @@ public final class CollectionsContract {
         }
 
         return items;
+    }
+
+    public List<Category> getCategories() {
+        CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
+        SQLiteDatabase db = csDbHelper.getWritableDatabase();
+
+        List<Category> categories = new ArrayList<>();
+
+        String[] projection = {
+                Categories._ID,
+                Categories.COLUMN_NAME_TITLE};
+
+        Cursor c = db.query(
+                Categories.TABLE_NAME,  // The table to query
+                projection,                     // The columns to return
+                null,                           // The columns for the WHERE clause
+                null,                           // The values for the WHERE clause
+                null,                           // don't group the rows
+                null,                           // don't filter by row groups
+                null                            // The sort order
+        );
+
+        if(c.moveToFirst()) {
+            do {
+                Category category = new Category();
+
+                category.setId(c.getLong(c.getColumnIndex(Categories._ID)));
+                category.setTitle(c.getString(c.getColumnIndex(Categories.COLUMN_NAME_TITLE)));
+
+                categories.add(category);
+            } while(c.moveToNext());
+        }
+
+        if(categories.isEmpty()) {
+            Category defaultCategory = new Category("Default");
+            defaultCategory.setId(insertCategory(defaultCategory));
+            categories.add(defaultCategory);
+        }
+
+        return categories;
     }
 }

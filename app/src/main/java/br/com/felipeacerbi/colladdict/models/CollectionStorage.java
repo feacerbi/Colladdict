@@ -14,7 +14,7 @@ public class CollectionStorage implements Serializable {
     private String description;
     private String photoPath;
     private List<CollectionItem> collectionItems;
-    private int category;
+    private Category category;
 
     public CollectionStorage() {
         collectionItems = new ArrayList<>();
@@ -48,7 +48,7 @@ public class CollectionStorage implements Serializable {
         return collectionItems;
     }
 
-    public int getCategory() {
+    public Category getCategory() {
         return category;
     }
 
@@ -72,7 +72,7 @@ public class CollectionStorage implements Serializable {
         this.collectionItems = collectionItems;
     }
 
-    public void setCategory(int category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 

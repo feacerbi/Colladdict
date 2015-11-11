@@ -1,5 +1,6 @@
 package br.com.felipeacerbi.colladdict.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.adapters.CollectionAdapter;
+import br.com.felipeacerbi.colladdict.fragments.CollectionStorageFragment;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 /**
@@ -151,6 +153,19 @@ public class CollectionItemsActivity extends AppCompatActivity {
     }
 
     @Override
+     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == Collections.REQUEST_MODIFY_COLLECTION_STORAGE && resultCode == Activity.RESULT_OK) {
+            storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
+            setToolbar();
+            Snackbar.make(
+                    findViewById(R.id.coordinator),
+                    storage.getTitle() + " collection modified",
+                    Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.collection_items, menu);
         return true;
@@ -160,15 +175,21 @@ public class CollectionItemsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case R.id.action_edit:
+                Intent intent = new Intent(this, NewCollectionActivity.class);
+                intent.putExtra("collection_storage", storage);
+                startActivityForResult(intent, Collections.REQUEST_MODIFY_COLLECTION_STORAGE);
+                break;
             case R.id.action_change_layout:
                 currentLayoutManagerType = (currentLayoutManagerType == LayoutManagerType.LINEAR_LAYOUT_MANAGER) ?
                         LayoutManagerType.GRID_LAYOUT_MANAGER : LayoutManagerType.LINEAR_LAYOUT_MANAGER;
                 setRecyclerViewLayoutManager(currentLayoutManagerType);
+                break;
             case R.id.action_settings:
-                return true;
+                break;
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {

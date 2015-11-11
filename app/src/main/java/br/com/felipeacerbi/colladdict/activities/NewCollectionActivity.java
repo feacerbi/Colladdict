@@ -41,7 +41,8 @@ public class NewCollectionActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 CollectionStorage storage = uiHelper.getCollectionStorage();
-                new InsertStorageTask(NewCollectionActivity.this).execute(storage);
+
+                new InsertStorageTask(NewCollectionActivity.this, uiHelper.isModify()).execute(storage);
 
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("collection_storage", storage);

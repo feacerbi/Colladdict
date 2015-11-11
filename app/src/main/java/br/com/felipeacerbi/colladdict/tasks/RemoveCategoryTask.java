@@ -7,16 +7,17 @@ import java.util.List;
 
 import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.dbs.CollectionsContract;
+import br.com.felipeacerbi.colladdict.models.Category;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 /**
  * Created by felipe.acerbi on 30/10/2015.
  */
-public class RemoveStorageTask extends AsyncTask<List<CollectionStorage>, Void, Void> {
+public class RemoveCategoryTask extends AsyncTask<List<Category>, Void, Void> {
 
     Collections col;
 
-    public RemoveStorageTask(Collections col) {
+    public RemoveCategoryTask(Collections col) {
 
         this.col = col;
 
@@ -24,12 +25,12 @@ public class RemoveStorageTask extends AsyncTask<List<CollectionStorage>, Void, 
     }
 
     @Override
-    protected Void doInBackground(List<CollectionStorage>... storages) {
+    protected Void doInBackground(List<Category>... categories) {
 
         CollectionsContract contract = new CollectionsContract(col);
 
-        for(CollectionStorage storage : storages[0]) {
-            contract.deleteCollectionStorage(storage.getId());
+        for(Category category : categories[0]) {
+            contract.deleteCategory(category.getId());
         }
 
         return null;
