@@ -52,7 +52,10 @@
                     android:layout_toLeftOf="@id/add_category_icon"
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"
                     android:background="?attr/selectableItemBackground"
+
                     android:text="Default"/>
             </RelativeLayout>
             <LinearLayout

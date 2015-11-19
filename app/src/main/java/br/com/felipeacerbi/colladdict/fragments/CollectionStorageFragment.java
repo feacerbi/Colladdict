@@ -93,7 +93,7 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         });
 
         layoutManager = new LinearLayoutManager(getActivity());
-        currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
+        currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
 
         if (savedInstanceState != null) {
             currentLayoutManagerType = (LayoutManagerType) savedInstanceState

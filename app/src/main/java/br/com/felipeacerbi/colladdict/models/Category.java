@@ -3,7 +3,7 @@ package br.com.felipeacerbi.colladdict.models;
 /**
  * Created by felipe.acerbi on 09/11/2015.
  */
-public class Category {
+public class Category implements ListItem {
 
     private long id;
     private String title;

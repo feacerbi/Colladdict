@@ -3,11 +3,15 @@ package br.com.felipeacerbi.colladdict.ui;
 import android.content.DialogInterface;
 import android.os.Environment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +35,7 @@ public class InsertStorageUIHelper {
     public static final String DEFAULT_PATH = Environment.getExternalStorageDirectory() + "/Colladdict/";
 
     private NewCollectionActivity nca;
+    private Category category;
     private EditText titleField;
     private EditText descField;
     private ImageView photo;
@@ -39,6 +44,7 @@ public class InsertStorageUIHelper {
     private boolean isModify;
     private ImageView addCategoryButton;
     private TextView categoryField;
+    private TextView saveButton;
 
     public InsertStorageUIHelper(NewCollectionActivity nca) {
 
@@ -48,16 +54,52 @@ public class InsertStorageUIHelper {
 
         isModify = getModify();
         if(isModify) {
-            ((TextView) nca.findViewById(R.id.save_button)).setText("UPDATE");
+            saveButton.setText("UPDATE");
+            categoryField.setText(category.getTitle());
         }
     }
 
     public void getInfo() {
 
+        saveButton = (TextView) nca.findViewById(R.id.save_button);
         titleField = (EditText) nca.findViewById(R.id.collection_title);
         descField = (EditText) nca.findViewById(R.id.collection_description);
         photo = (ImageView) nca.findViewById(R.id.collection_photo);
         categoryField = (TextView) nca.findViewById(R.id.collection_category);
+        categoryField.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                LayoutInflater layoutInflater = LayoutInflater.from(nca);
+                View listView = layoutInflater.inflate(R.layout.list_dialog_view, null);
+
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                        nca)
+                        .setView(listView);
+                alertDialog.create();
+
+                final ListView categoryList = (ListView) listView.findViewById(R.id.category_list);
+
+                new LoadCategoriesTask(nca, categoryList).execute();
+
+                alertDialog.setPositiveButton(R.string.add_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        category = (Category) categoryList.getSelectedItem();
+                        categoryField.setText(category.getTitle());
+                    }
+                })
+                        .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Cancel Action
+                            }
+                        })
+                        .setTitle("Select Category")
+                        .show();
+
+            }
+        });
         addCategoryButton = (ImageView) nca.findViewById(R.id.add_category_icon);
         addCategoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,11 +122,10 @@ public class InsertStorageUIHelper {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String newCategoryName = newCategoryField.getText().toString();
                         if (!newCategoryName.isEmpty()) {
-                            Category newCategory = new Category(newCategoryName);
+                            category = new Category(newCategoryName);
 
-                            new InsertCategoryTask(nca).execute(newCategory);
-                            new LoadCategoriesTask(nca, categoryField).execute();
-                            categoryField.setText(newCategory.getTitle());
+                            new InsertCategoryTask(nca).execute(category);
+                            categoryField.setText(category.getTitle());
                         }
                     }
                 })
@@ -99,7 +140,7 @@ public class InsertStorageUIHelper {
             }
         });
 
-        new LoadCategoriesTask(nca, categoryField).execute();
+        category = null;
     }
 
     public boolean checkFolder() {
@@ -122,8 +163,7 @@ public class InsertStorageUIHelper {
             id = storage.getId();
             titleField.setText(storage.getTitle());
             descField.setText(storage.getDescription());
-
-            selectCategory(storage);
+            category = storage.getCategory();
 
             return true;
         }
@@ -131,21 +171,12 @@ public class InsertStorageUIHelper {
         return false;
     }
 
-    public void selectCategory(CollectionStorage storage) {
-        List<Category> categories = getCategories();
-        for(Category category : categories) {
-            if(storage.getCategory().getTitle().equals(category.getTitle())) {
-                categoryField.setText(category.getTitle());
-            }
-        }
-    }
-
     public CollectionStorage getCollectionStorage() {
 
         CollectionStorage storage = new CollectionStorage();
         storage.setId(id);
         storage.setTitle(titleField.getText().toString());
-//        storage.setCategory((Category) categoryField.getSelectedItem());
+        storage.setCategory(category);
         storage.setDescription(descField.getText().toString());
         storage.setPhotoPath(getPath());
 

@@ -26,7 +26,7 @@ public class InsertCategoryTask extends AsyncTask<Category, Void, Void> {
     protected Void doInBackground(Category... categories) {
 
         CollectionsContract contract = new CollectionsContract(aca);
-        contract.insertCategory(categories[0]);
+        categories[0].setId(contract.insertCategory(categories[0]));
 
         return null;
     }

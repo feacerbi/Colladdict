@@ -13,6 +13,7 @@ import java.util.List;
 import br.com.felipeacerbi.colladdict.models.Category;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
+import br.com.felipeacerbi.colladdict.models.ListItem;
 
 /**
  * Created by felipe.acerbi on 29/10/2015.
@@ -105,6 +106,12 @@ public final class CollectionsContract {
     public long insertCollectionStorage(CollectionStorage storage) {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
+
+        if(storage.getCategory() == null) {
+            Category defaultCategory = new Category("Default");
+            defaultCategory.setId(insertCategory(defaultCategory));
+            storage.setCategory(defaultCategory);
+        }
 
         ContentValues values = new ContentValues();
         values.put(CollectionStorages.COLUMN_NAME_TITLE, storage.getTitle());
@@ -245,7 +252,7 @@ public final class CollectionsContract {
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
         List<CollectionStorage> storages = new ArrayList<>();
-        List<Category> categories = getCategories();
+        List<ListItem> categories = getCategories();
 
         String[] projection = {
                 CollectionStorages._ID,
@@ -272,7 +279,7 @@ public final class CollectionsContract {
                 storage.setTitle(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_TITLE)));
                 storage.setDescription(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_DESCRIPTION)));
                 storage.setPhotoPath(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_PHOTO_PATH)));
-                storage.setCategory(categories.get(c.getInt(c.getColumnIndex(CollectionStorages.COLUMN_NAME_CATEGORY_ID))));
+                storage.setCategory((Category) categories.get(c.getInt(c.getColumnIndex(CollectionStorages.COLUMN_NAME_CATEGORY_ID))));
 
                 storages.add(storage);
             } while(c.moveToNext());
@@ -328,11 +335,11 @@ public final class CollectionsContract {
         return items;
     }
 
-    public List<Category> getCategories() {
+    public List<ListItem> getCategories() {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
-        List<Category> categories = new ArrayList<>();
+        List<ListItem> categories = new ArrayList<>();
 
         String[] projection = {
                 Categories._ID,

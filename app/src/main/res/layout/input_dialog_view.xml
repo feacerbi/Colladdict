@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditText xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/new_category"
-    android:singleLine="true"
-    android:layout_width="match_parent"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
-    android:layout_margin="@dimen/margin_medium"
-    android:textSize="20sp"
-    android:textAlignment="inherit"/>
+    android:layout_width="match_parent"
+    android:padding="@dimen/margin_medium">
+    <EditText
+        android:id="@+id/new_category"
+        android:singleLine="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="18sp"
+        android:textAlignment="inherit"/>
+</LinearLayout>
