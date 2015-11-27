@@ -116,11 +116,7 @@ public class DialogListAdapter implements ListAdapter {
     }
 
     public void selectItem(int position) {
-        if(isSelected(position)) {
-            selectedList.delete(position);
-        } else {
-            selectedList.put(position, true);
-        }
+        selectedList.put(position, true);
     }
 
     public boolean isSelected(int position) {

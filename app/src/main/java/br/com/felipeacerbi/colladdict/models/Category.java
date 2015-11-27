@@ -1,9 +1,11 @@
 package br.com.felipeacerbi.colladdict.models;
 
+import java.io.Serializable;
+
 /**
  * Created by felipe.acerbi on 09/11/2015.
  */
-public class Category implements ListItem {
+public class Category implements ListItem, Serializable {
 
     private long id;
     private String title;

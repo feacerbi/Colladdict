@@ -33,23 +33,17 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView titleField;
-        private final TextView descField;
         private final ImageView photoField;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             titleField = (TextView) itemView.findViewById(R.id.collection_title);
-            descField = (TextView) itemView.findViewById(R.id.collection_description);
             photoField = (ImageView) itemView.findViewById(R.id.collection_photo);
         }
 
         public TextView getTitleField() {
             return titleField;
-        }
-
-        public TextView getDescField() {
-            return descField;
         }
 
         public ImageView getPhotoField() {
@@ -76,7 +70,6 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
 
         holder.getPhotoField().setScaleType(ImageView.ScaleType.CENTER_CROP);
         holder.getTitleField().setText(storage.getTitle());
-        holder.getDescField().setText(storage.getDescription());
 
         if(selectedItems.get(position, false)) {
             holder.getPhotoField().setColorFilter(R.color.fadeImage);

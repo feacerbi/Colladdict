@@ -279,7 +279,7 @@ public final class CollectionsContract {
                 storage.setTitle(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_TITLE)));
                 storage.setDescription(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_DESCRIPTION)));
                 storage.setPhotoPath(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_PHOTO_PATH)));
-                storage.setCategory((Category) categories.get(c.getInt(c.getColumnIndex(CollectionStorages.COLUMN_NAME_CATEGORY_ID))));
+                storage.setCategory((Category) categories.get(c.getInt(c.getColumnIndex(CollectionStorages.COLUMN_NAME_CATEGORY_ID)) - 1));
 
                 storages.add(storage);
             } while(c.moveToNext());
@@ -373,5 +373,36 @@ public final class CollectionsContract {
         }
 
         return categories;
+    }
+
+    public Cursor getCategoriesCursor() {
+        CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
+        SQLiteDatabase db = csDbHelper.getWritableDatabase();
+
+        String[] projection = {
+                Categories._ID,
+                Categories.COLUMN_NAME_TITLE};
+
+        return db.query(
+                Categories.TABLE_NAME,  // The table to query
+                projection,                     // The columns to return
+                null,                           // The columns for the WHERE clause
+                null,                           // The values for the WHERE clause
+                null,                           // don't group the rows
+                null,                           // don't filter by row groups
+                null                            // The sort order
+        );
+
+    }
+
+    public Category getCategory(Cursor cursor, int position) {
+        Category category = new Category();
+
+        cursor.moveToPosition(position);
+
+        category.setId(cursor.getLong(cursor.getColumnIndex(CollectionsContract.Categories._ID)));
+        category.setTitle(cursor.getString(cursor.getColumnIndex(CollectionsContract.Categories.COLUMN_NAME_TITLE)));
+
+        return category;
     }
 }

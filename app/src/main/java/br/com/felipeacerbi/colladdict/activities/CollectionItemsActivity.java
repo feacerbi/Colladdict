@@ -48,6 +48,7 @@ public class CollectionItemsActivity extends AppCompatActivity {
     private LinearLayout scrim;
     private CollapsingToolbarLayout collapToolbar;
     private Toolbar toolbar;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -100,10 +101,10 @@ public class CollectionItemsActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
 
-        if (savedInstanceState != null) {
-            currentLayoutManagerType = (LayoutManagerType) savedInstanceState
-                    .getSerializable(KEY_LAYOUT_MANAGER);
-        }
+//        if (savedInstanceState != null) {
+//            currentLayoutManagerType = (LayoutManagerType) savedInstanceState
+//                    .getSerializable(KEY_LAYOUT_MANAGER);
+//        }
         setRecyclerViewLayoutManager(currentLayoutManagerType);
 
         super.onContentChanged();
@@ -127,6 +128,9 @@ public class CollectionItemsActivity extends AppCompatActivity {
 
     public void setToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        setSupportActionBar(toolbar);
+        collapsingToolbarLayout.setTitle(storage.getTitle());
         toolbar.setTitle(storage.getTitle());
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,7 +138,6 @@ public class CollectionItemsActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
-        setSupportActionBar(toolbar);
 
         // TODO Get Image from real source.
         if(storage.getPhotoPath() != null) {

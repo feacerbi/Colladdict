@@ -2,6 +2,7 @@ package br.com.felipeacerbi.colladdict.ui;
 
 import android.content.DialogInterface;
 import android.os.Environment;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -70,33 +71,7 @@ public class InsertStorageUIHelper {
             @Override
             public void onClick(View v) {
 
-                LayoutInflater layoutInflater = LayoutInflater.from(nca);
-                View listView = layoutInflater.inflate(R.layout.list_dialog_view, null);
-
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(
-                        nca)
-                        .setView(listView);
-                alertDialog.create();
-
-                final ListView categoryList = (ListView) listView.findViewById(R.id.category_list);
-
-                new LoadCategoriesTask(nca, categoryList).execute();
-
-                alertDialog.setPositiveButton(R.string.add_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        category = (Category) categoryList.getSelectedItem();
-                        categoryField.setText(category.getTitle());
-                    }
-                })
-                        .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // Cancel Action
-                            }
-                        })
-                        .setTitle("Select Category")
-                        .show();
+                new LoadCategoriesTask(nca, categoryField).execute();
 
             }
         });
@@ -108,8 +83,7 @@ public class InsertStorageUIHelper {
                 LayoutInflater layoutInflater = LayoutInflater.from(nca);
                 View inputView = layoutInflater.inflate(R.layout.input_dialog_view, null);
 
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(
-                        nca)
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(nca)
                         .setView(inputView);
                 alertDialog.create();
 
@@ -117,7 +91,7 @@ public class InsertStorageUIHelper {
                 newCategoryField.setHint("Category Name");
                 newCategoryField.requestFocus();
 
-                alertDialog.setPositiveButton(R.string.add_button, new DialogInterface.OnClickListener() {
+                alertDialog.setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String newCategoryName = newCategoryField.getText().toString();
@@ -176,6 +150,9 @@ public class InsertStorageUIHelper {
         CollectionStorage storage = new CollectionStorage();
         storage.setId(id);
         storage.setTitle(titleField.getText().toString());
+        if(categoryField.getTag() != null) {
+            category = (Category) categoryField.getTag();
+        }
         storage.setCategory(category);
         storage.setDescription(descField.getText().toString());
         storage.setPhotoPath(getPath());
@@ -203,16 +180,6 @@ public class InsertStorageUIHelper {
 
     public boolean isModify() {
         return isModify;
-    }
-
-    public List<Category> getCategories() {
-        List<Category> categories = new ArrayList<>();
-
-//        for(int i=0; i < categoryField.getAdapter().getCount(); i++) {
-//            categories.add((Category) categoryField.getAdapter().getItem(i));
-//        }
-
-        return categories;
     }
 
 }

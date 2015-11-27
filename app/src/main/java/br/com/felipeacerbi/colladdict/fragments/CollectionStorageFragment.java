@@ -74,6 +74,12 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        reload();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View collectionsList = inflater.inflate(R.layout.fragment_collection_storage, container, false);
@@ -92,13 +98,13 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
             }
         });
 
-        layoutManager = new LinearLayoutManager(getActivity());
-        currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+        layoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
+        currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
 
-        if (savedInstanceState != null) {
-            currentLayoutManagerType = (LayoutManagerType) savedInstanceState
-                    .getSerializable(KEY_LAYOUT_MANAGER);
-        }
+//        if (savedInstanceState != null) {
+//            currentLayoutManagerType = (LayoutManagerType) savedInstanceState
+//                    .getSerializable(KEY_LAYOUT_MANAGER);
+//        }
 
         setRecyclerViewLayoutManager(currentLayoutManagerType);
 

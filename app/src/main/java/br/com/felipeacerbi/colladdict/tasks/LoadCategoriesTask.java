@@ -1,10 +1,14 @@
 package br.com.felipeacerbi.colladdict.tasks;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ThemedSpinnerAdapter;
 import android.view.LayoutInflater;
@@ -30,18 +34,20 @@ import br.com.felipeacerbi.colladdict.models.ListItem;
 /**
  * Created by felipe.acerbi on 30/10/2015.
  */
-public class LoadCategoriesTask extends AsyncTask<Void, Void, Void> {
+public class LoadCategoriesTask extends AsyncTask<Void, Void, Cursor> {
 
-    private ListView categoryList;
+    private final TextView categoryField;
     private NewCollectionActivity nca;
-    private List<ListItem> categories;
     private ProgressDialog progress;
+    private Category selectedCategory;
+    private int selectedPosition;
+    private CollectionsContract contract;
 
-
-    public LoadCategoriesTask(NewCollectionActivity nca, ListView categotyList) {
+    public LoadCategoriesTask(NewCollectionActivity nca, TextView categoryField) {
 
         this.nca = nca;
-        this.categoryList = categotyList;
+        this.categoryField = categoryField;
+        contract = new CollectionsContract(nca);
         nca.getApp().register(this);
     }
 
@@ -55,18 +61,36 @@ public class LoadCategoriesTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
-
-        CollectionsContract contract = new CollectionsContract(nca);
-        categories = contract.getCategories();
-
-        return null;
+    protected Cursor doInBackground(Void... voids) {
+        return contract.getCategoriesCursor();
     }
 
     @Override
-    protected void onPostExecute(Void voids) {
+    protected void onPostExecute(final Cursor cursor) {
 
-        categoryList.setAdapter(new DialogListAdapter(nca, categories));
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(nca);
+        alertBuilder.setSingleChoiceItems(cursor, selectedPosition, CollectionsContract.Categories.COLUMN_NAME_TITLE, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+            }
+        }).setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                selectedCategory = contract.getCategory(cursor, selectedPosition);
+                categoryField.setText(selectedCategory.getTitle());
+                categoryField.setTag(selectedCategory);
+            }
+        })
+                .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Cancel Action
+                    }
+                })
+                .setTitle("Select Category")
+                .create()
+                .show();
 
         progress.dismiss();
     }
