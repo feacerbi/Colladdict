@@ -23,7 +23,7 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 /**
  * Created by felipe.acerbi on 28/09/2015.
  */
-public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionStorageAdapter.ViewHolder> {
+public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionStoragesAdapter.ViewHolder> {
 
     private Collections context;
     private CollectionStorageFragment fragment;
@@ -51,7 +51,7 @@ public class CollectionStorageAdapter extends RecyclerView.Adapter<CollectionSto
         }
     }
 
-    public CollectionStorageAdapter(CollectionStorageFragment fragment, List<CollectionStorage> storages) {
+    public CollectionStoragesAdapter(CollectionStorageFragment fragment, List<CollectionStorage> storages) {
         this.fragment = fragment;
         this.storages = storages;
         selectedItems = new SparseBooleanArray();

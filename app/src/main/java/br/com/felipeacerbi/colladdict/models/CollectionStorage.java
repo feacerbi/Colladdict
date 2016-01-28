@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class CollectionStorage implements Serializable {
 
-    private long id;
+    private long id = -1;
     private String title;
     private String description;
     private String photoPath;

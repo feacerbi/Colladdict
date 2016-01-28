@@ -62,7 +62,7 @@ public final class CollectionsContract {
             "DROP TABLE IF EXISTS " + CollectionStorages.TABLE_NAME;
 
     private static final String SQL_CREATE_ITEMS_TABLE =
-            "CREATE TABLE IF NOT EXISTS " + CollectionStorages.TABLE_NAME + " (" +
+            "CREATE TABLE IF NOT EXISTS " + CollectionItems.TABLE_NAME + " (" +
                     CollectionItems._ID + INTEGER_TYPE + " PRIMARY KEY," +
                     CollectionItems.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
                     CollectionItems.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
@@ -125,7 +125,7 @@ public final class CollectionsContract {
                 values);
     }
 
-    public long insertCollectionStorageItem(CollectionItem item) {
+    public long insertCollectionItem(CollectionItem item) {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
@@ -304,32 +304,34 @@ public final class CollectionsContract {
         String selection = null;
         String[] selectionArgs = { String.valueOf(storageId) };
 
-        if(storageId != 0) {
+        if(storageId != -1) {
             selection = CollectionItems.COLUMN_NAME_STORAGE_ID + " LIKE ?";
         }
 
-        Cursor c = db.query(
-                CollectionItems.TABLE_NAME,  // The table to query
-                projection,                  // The columns to return
-                selection,                   // The columns for the WHERE clause
-                selectionArgs,               // The values for the WHERE clause
-                null,                        // don't group the rows
-                null,                        // don't filter by row groups
-                null                         // The sort order
-        );
+        if(selectionArgs.length != 0) {
+            Cursor c = db.query(
+                    CollectionItems.TABLE_NAME,  // The table to query
+                    projection,                  // The columns to return
+                    selection,                   // The columns for the WHERE clause
+                    selectionArgs,               // The values for the WHERE clause
+                    null,                        // don't group the rows
+                    null,                        // don't filter by row groups
+                    null                         // The sort order
+            );
 
-        if(c.moveToFirst()) {
-            do {
-                CollectionItem item = new CollectionItem();
+            if (c.moveToFirst()) {
+                do {
+                    CollectionItem item = new CollectionItem();
 
-                item.setId(c.getLong(c.getColumnIndex(CollectionItems._ID)));
-                item.setTitle(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_TITLE)));
-                item.setDescription(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_DESCRIPTION)));
-                item.setPhotoPath(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_PHOTO_PATH)));
-                item.setStorageId(c.getInt(c.getColumnIndex(CollectionItems.COLUMN_NAME_STORAGE_ID)));
+                    item.setId(c.getLong(c.getColumnIndex(CollectionItems._ID)));
+                    item.setTitle(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_TITLE)));
+                    item.setDescription(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_DESCRIPTION)));
+                    item.setPhotoPath(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_PHOTO_PATH)));
+                    item.setStorageId(c.getInt(c.getColumnIndex(CollectionItems.COLUMN_NAME_STORAGE_ID)));
 
-                items.add(item);
-            } while(c.moveToNext());
+                    items.add(item);
+                } while (c.moveToNext());
+            }
         }
 
         return items;

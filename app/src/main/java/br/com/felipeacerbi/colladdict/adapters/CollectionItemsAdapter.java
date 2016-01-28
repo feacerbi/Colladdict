@@ -21,7 +21,7 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 /**
  * Created by felipe.acerbi on 28/09/2015.
  */
-public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.ViewHolder> {
+public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItemsAdapter.ViewHolder> {
 
     private final Context context;
     private final SparseBooleanArray selectedItems;
@@ -49,7 +49,7 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Vi
         }
     }
 
-    public CollectionAdapter(Context context, List<CollectionItem> items) {
+    public CollectionItemsAdapter(Context context, List<CollectionItem> items) {
         this.context = context;
         this.items = items;
         selectedItems = new SparseBooleanArray();

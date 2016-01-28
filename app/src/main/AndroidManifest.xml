@@ -25,6 +25,9 @@
         <activity
             android:name=".activities.NewCollectionActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.NewItemActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
