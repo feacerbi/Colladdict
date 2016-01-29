@@ -80,7 +80,7 @@ public class LoadItemsTask extends AsyncTask<Void, Void, CollectionItemsAdapter>
 
         recyclerView.setAdapter(adapter);
 
-                ((CollectionsApplication) aca.getApplication()).unregister(this);
+        ((CollectionsApplication) aca.getApplication()).unregister(this);
         progress.dismiss();
     }
 }

@@ -107,8 +107,6 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
 
         setRecyclerViewLayoutManager(currentLayoutManagerType);
 
-        reload();
-
         return collectionsList;
     }
 

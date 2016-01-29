@@ -65,7 +65,8 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
     public void onBindViewHolder(ViewHolder holder, int position) {
         CollectionItem item = items.get(position);
 
-        holder.getTitleField().setText(items.get(position).getTitle());
+        holder.getPhotoField().setScaleType(ImageView.ScaleType.CENTER_CROP);
+        holder.getTitleField().setText(item.getTitle());
 
         if(selectedItems.get(position, false)) {
             holder.getPhotoField().setColorFilter(R.color.fadeImage);
@@ -73,10 +74,19 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
             holder.getPhotoField().setColorFilter(null);
         }
 
+        // TODO Get Image from real source.
         if(item.getPhotoPath() != null) {
-            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeFile(item.getPhotoPath()), 300, 400, true));
+            if(item.getPhotoPath().equals("3")) {
+                holder.getPhotoField().setImageResource(R.drawable.shells);
+            } else if(item.getPhotoPath().equals("4")) {
+                holder.getPhotoField().setImageResource(R.drawable.cds);
+            } else {
+//            holder.getPhotoField().setImageURI(Uri.parse(storage.getPhotoPath()));
+                holder.getPhotoField().setImageResource(R.drawable.absolut_vodka_bottles);
+            }
         } else {
-            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon), 300, 400, true));
+            holder.getPhotoField().setImageResource(R.drawable.beer_bottle_caps_collection);
+//            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon), 30, 30, true));
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

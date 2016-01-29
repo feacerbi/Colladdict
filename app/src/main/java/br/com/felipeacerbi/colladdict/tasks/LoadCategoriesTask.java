@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ThemedSpinnerAdapter;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import java.util.List;
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.adapters.DialogListAdapter;
+import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.dbs.CollectionsContract;
 import br.com.felipeacerbi.colladdict.models.Category;
 import br.com.felipeacerbi.colladdict.models.ListItem;
@@ -37,25 +39,25 @@ import br.com.felipeacerbi.colladdict.models.ListItem;
 public class LoadCategoriesTask extends AsyncTask<Void, Void, Cursor> {
 
     private final TextView categoryField;
-    private NewCollectionActivity nca;
+    private AppCompatActivity aca;
     private ProgressDialog progress;
     private Category selectedCategory;
     private int selectedPosition;
     private CollectionsContract contract;
 
-    public LoadCategoriesTask(NewCollectionActivity nca, TextView categoryField) {
+    public LoadCategoriesTask(AppCompatActivity aca, TextView categoryField) {
 
-        this.nca = nca;
+        this.aca = aca;
         this.categoryField = categoryField;
-        contract = new CollectionsContract(nca);
-        nca.getApp().register(this);
+        contract = new CollectionsContract(aca);
+        ((CollectionsApplication) aca.getApplication()).register(this);
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
 
-        progress = new ProgressDialog(nca);
+        progress = new ProgressDialog(aca);
         progress.setMessage("Loading Categories...");
         progress.show();
     }
@@ -68,7 +70,7 @@ public class LoadCategoriesTask extends AsyncTask<Void, Void, Cursor> {
     @Override
     protected void onPostExecute(final Cursor cursor) {
 
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(nca);
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(aca);
         alertBuilder.setSingleChoiceItems(cursor, selectedPosition, CollectionsContract.Categories.COLUMN_NAME_TITLE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -92,6 +94,7 @@ public class LoadCategoriesTask extends AsyncTask<Void, Void, Cursor> {
                 .create()
                 .show();
 
+        ((CollectionsApplication) aca.getApplication()).unregister(this);
         progress.dismiss();
     }
 }

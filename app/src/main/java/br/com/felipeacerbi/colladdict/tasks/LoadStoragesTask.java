@@ -2,6 +2,7 @@ package br.com.felipeacerbi.colladdict.tasks;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.adapters.CollectionStoragesAdapter;
+import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.dbs.CollectionsContract;
 import br.com.felipeacerbi.colladdict.fragments.CollectionStorageFragment;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
@@ -21,7 +23,7 @@ public class LoadStoragesTask extends AsyncTask<Void, Void, CollectionStoragesAd
 
     private TextView emptyText;
     private RecyclerView recyclerView;
-    private Collections col;
+    private AppCompatActivity aca;
     private CollectionStorageFragment fragment;
     private List<CollectionStorage> storages;
     private ProgressDialog progress;
@@ -32,15 +34,15 @@ public class LoadStoragesTask extends AsyncTask<Void, Void, CollectionStoragesAd
         this.fragment = fragment;
         this.recyclerView = recyclerView;
         this.emptyText = emptyText;
-        col = (Collections) fragment.getActivity();
-        col.getApp().register(this);
+        aca = (AppCompatActivity) fragment.getActivity();
+        ((CollectionsApplication) aca.getApplication()).register(this);
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
 
-        progress = new ProgressDialog(col);
+        progress = new ProgressDialog(aca);
         progress.setMessage("Loading Collections...");
         progress.show();
     }
@@ -48,7 +50,7 @@ public class LoadStoragesTask extends AsyncTask<Void, Void, CollectionStoragesAd
     @Override
     protected CollectionStoragesAdapter doInBackground(Void... voids) {
 
-        CollectionsContract contract = new CollectionsContract(col);
+        CollectionsContract contract = new CollectionsContract(aca);
         storages = contract.getCollectionStorages();
         CollectionStoragesAdapter adapter = new CollectionStoragesAdapter(fragment, storages);
 
@@ -68,7 +70,7 @@ public class LoadStoragesTask extends AsyncTask<Void, Void, CollectionStoragesAd
 
         recyclerView.setAdapter(adapter);
 
-        col.getApp().unregister(this);
+        ((CollectionsApplication) aca.getApplication()).unregister(this);
         progress.dismiss();
     }
 }
