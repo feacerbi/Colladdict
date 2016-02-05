@@ -2,17 +2,22 @@ package br.com.felipeacerbi.colladdict.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.transition.Fade;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,18 +25,27 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.util.List;
+
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.adapters.CollectionItemsAdapter;
 import br.com.felipeacerbi.colladdict.adapters.CollectionStoragesAdapter;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
+import br.com.felipeacerbi.colladdict.tasks.InsertItemTask;
+import br.com.felipeacerbi.colladdict.tasks.InsertStorageTask;
 import br.com.felipeacerbi.colladdict.tasks.LoadItemsTask;
 import br.com.felipeacerbi.colladdict.tasks.LoadStoragesTask;
+import br.com.felipeacerbi.colladdict.tasks.RemoveItemsTask;
+import br.com.felipeacerbi.colladdict.tasks.RemoveStoragesTask;
 
 /**
  * Created by felipe.acerbi on 01/10/2015.
  */
-public class CollectionItemsActivity extends AppCompatActivity {
+public class CollectionItemsActivity extends AppCompatActivity implements ActionMode.Callback {
 
     private static final String KEY_LAYOUT_MANAGER = "layoutManager";
     private static final int SPAN_COUNT = 2;
@@ -52,6 +66,9 @@ public class CollectionItemsActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private LayoutManagerType currentLayoutManagerType;
+    private ActionMode actionMode;
+    private boolean isActionMode;
+    private List<CollectionItem> deleteList;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -67,7 +84,7 @@ public class CollectionItemsActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null && intent.getExtras() != null) {
-            storage = (CollectionStorage) intent.getExtras().get("storage");
+            storage = (CollectionStorage) intent.getExtras().get("collection_storage");
         } else {
             storage = new CollectionStorage();
         }
@@ -91,6 +108,11 @@ public class CollectionItemsActivity extends AppCompatActivity {
 
         coverPhoto.setTransitionName("photo");
 
+        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+        itemAnimator.setAddDuration(1000);
+        itemAnimator.setRemoveDuration(1000);
+        recyclerView.setItemAnimator(itemAnimator);
+
         floatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,7 +122,6 @@ public class CollectionItemsActivity extends AppCompatActivity {
             }
         });
 
-        layoutManager = new LinearLayoutManager(this);
         currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
 
 //        if (savedInstanceState != null) {
@@ -111,8 +132,8 @@ public class CollectionItemsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         reload();
     }
 
@@ -126,9 +147,7 @@ public class CollectionItemsActivity extends AppCompatActivity {
         collectionItemsAdapter = (CollectionItemsAdapter) recyclerView.getAdapter();
         // TODO Fix scroll to position.
         int scrollPosition = 0;
-        scrollPosition = (collectionItemsAdapter.getItemCount() % 2 == 0) ?
-                collectionItemsAdapter.getItemCount() / 2 :
-                (collectionItemsAdapter.getItemCount() / 2) + 1;
+        scrollPosition = (collectionItemsAdapter.getItemCount());
         recyclerView.scrollToPosition(scrollPosition);
     }
 
@@ -145,40 +164,111 @@ public class CollectionItemsActivity extends AppCompatActivity {
             }
         });
 
-        // TODO Get Image from real source.
         if(storage.getPhotoPath() != null) {
-            if(storage.getPhotoPath().equals("3")) {
-                coverPhoto.setImageResource(R.drawable.shells);
-            } else if(storage.getPhotoPath().equals("4")) {
-                coverPhoto.setImageResource(R.drawable.cds);
-            } else {
-//            holder.getPhotoField().setImageURI(Uri.parse(storage.getPhotoPath()));
-                coverPhoto.setImageResource(R.drawable.absolut_vodka_bottles);
-            }
+//            Bitmap bmp = BitmapFactory.decodeFile(storage.getPhotoPath());
+//            coverPhoto.setImageBitmap(Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true));
+            Picasso.with(this)
+                    .load(new File(storage.getPhotoPath()))
+                    .error(android.R.drawable.btn_default)
+                    .into(coverPhoto);
         } else {
-            coverPhoto.setImageResource(R.drawable.beer_bottle_caps_collection);
-//            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon), 300, 400, true));
+//            Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.shells);
+//            coverPhoto.setImageBitmap(Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true));
+            Picasso.with(this)
+                    .load(R.drawable.shells)
+                    .error(android.R.drawable.btn_default)
+                    .into(coverPhoto);
         }
     }
 
     @Override
      protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == Collections.REQUEST_MODIFY_COLLECTION_STORAGE && resultCode == Activity.RESULT_OK) {
-            storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
-            setToolbar();
-            Snackbar.make(
-                    findViewById(R.id.coordinator),
-                    storage.getTitle() + " collection modified",
-                    Snackbar.LENGTH_SHORT).show();
-        } else if(requestCode == Collections.REQUEST_NEW_COLLECTION_ITEM && resultCode == Activity.RESULT_OK) {
-            final CollectionItem item = (CollectionItem) data.getExtras().getSerializable("collection_item");
-            reloadAndScroll();
-            Snackbar.make(
-                    findViewById(R.id.coordinator),
-                    item.getTitle() + " item created",
-                    Snackbar.LENGTH_SHORT).show();
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == Collections.REQUEST_MODIFY_COLLECTION_STORAGE) {
+                storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
+                setToolbar();
+                Snackbar.make(
+                        findViewById(R.id.coordinator),
+                        storage.getTitle() + " collection modified",
+                        Snackbar.LENGTH_SHORT).show();
+            } else if (requestCode == Collections.REQUEST_NEW_COLLECTION_ITEM) {
+                final CollectionItem item = (CollectionItem) data.getExtras().getSerializable("collection_item");
+                reloadAndScroll();
+                Snackbar.make(
+                        findViewById(R.id.coordinator),
+                        item.getTitle() + " item created",
+                        Snackbar.LENGTH_SHORT).show();
+            } else if (requestCode == Collections.REQUEST_MODIFY_COLLECTION_ITEM) {
+                final CollectionItem item = (CollectionItem) data.getExtras().getSerializable("collection_item");
+                reloadAndScroll();
+                Snackbar.make(
+                        findViewById(R.id.coordinator),
+                        item.getTitle() + " item modified",
+                        Snackbar.LENGTH_SHORT).show();
+            }
         }
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        toolbar.setVisibility(View.GONE);
+        MenuInflater inflater = mode.getMenuInflater();
+        inflater.inflate(R.menu.collection_items_context_menu, menu);
+
+        collectionItemsAdapter = (CollectionItemsAdapter) recyclerView.getAdapter();
+        actionMode = mode;
+
+        mode.setTitle(String.valueOf(collectionItemsAdapter.getSelectedItemsCount()));
+        isActionMode = true;
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        // TODO Deprecated method for newer versions.
+//        context.getWindow().setStatusBarColor(context.getResources().getColor(R.color.colorPrimaryDark, null));
+        getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+        return true;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.action_remove_collection_item:
+                deleteList = collectionItemsAdapter.getSelectedItems();
+                new RemoveItemsTask(this).execute(deleteList);
+                reloadAndScroll();
+                Snackbar.make(findViewById(R.id.coordinator), "Items removed", Snackbar.LENGTH_LONG)
+                        .setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                for (CollectionItem item : deleteList) {
+                                    new InsertItemTask(CollectionItemsActivity.this, false).execute(item);
+                                }
+                                reloadAndScroll();
+                            }
+                        }).show();
+                mode.finish();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        toolbar.setVisibility(View.VISIBLE);
+        collectionItemsAdapter.deselectAll();
+        isActionMode = false;
+    }
+
+    public ActionMode getActionMode() {
+        return actionMode;
+    }
+
+    public boolean isActionMode() {
+        return isActionMode;
     }
 
     @Override

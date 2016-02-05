@@ -11,6 +11,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.felipeacerbi.colladdict.activities.CollectionItemsActivity;
 import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.adapters.CollectionItemsAdapter;
 import br.com.felipeacerbi.colladdict.adapters.CollectionStoragesAdapter;
@@ -47,9 +48,9 @@ public class LoadItemsTask extends AsyncTask<Void, Void, CollectionItemsAdapter>
     protected void onPreExecute() {
         super.onPreExecute();
 
-        progress = new ProgressDialog(aca);
-        progress.setMessage("Loading Items...");
-        progress.show();
+//        progress = new ProgressDialog(aca);
+//        progress.setMessage("Loading Items...");
+//        progress.show();
     }
 
     @Override
@@ -62,7 +63,7 @@ public class LoadItemsTask extends AsyncTask<Void, Void, CollectionItemsAdapter>
             items = new ArrayList<>();
         }
 
-        CollectionItemsAdapter adapter = new CollectionItemsAdapter(aca, items);
+        CollectionItemsAdapter adapter = new CollectionItemsAdapter((CollectionItemsActivity) aca, items, storage);
 
         return adapter;
     }
@@ -81,6 +82,6 @@ public class LoadItemsTask extends AsyncTask<Void, Void, CollectionItemsAdapter>
         recyclerView.setAdapter(adapter);
 
         ((CollectionsApplication) aca.getApplication()).unregister(this);
-        progress.dismiss();
+//        progress.dismiss();
     }
 }

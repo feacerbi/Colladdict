@@ -1,20 +1,37 @@
 package br.com.felipeacerbi.colladdict.adapters;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
+import br.com.felipeacerbi.colladdict.activities.CollectionItemsActivity;
+import br.com.felipeacerbi.colladdict.activities.Collections;
+import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
+import br.com.felipeacerbi.colladdict.activities.NewItemActivity;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
@@ -23,19 +40,23 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
  */
 public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItemsAdapter.ViewHolder> {
 
-    private final Context context;
+    private final CollectionItemsActivity context;
     private final SparseBooleanArray selectedItems;
     private List<CollectionItem> items;
+    private CollectionStorage storage;
+    public static final int LIST_ICON_SIZE = 40;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView titleField;
         private final ImageView photoField;
+        private final TextView descField;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             titleField = (TextView) itemView.findViewById(R.id.item_title);
+            descField = (TextView) itemView.findViewById(R.id.item_description);
             photoField = (ImageView) itemView.findViewById(R.id.item_image);
 
         }
@@ -44,14 +65,19 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
             return titleField;
         }
 
+        public TextView getDescField() {
+            return descField;
+        }
+
         public ImageView getPhotoField() {
             return photoField;
         }
     }
 
-    public CollectionItemsAdapter(Context context, List<CollectionItem> items) {
+    public CollectionItemsAdapter(CollectionItemsActivity context, List<CollectionItem> items, CollectionStorage storage) {
         this.context = context;
         this.items = items;
+        this.storage = storage;
         selectedItems = new SparseBooleanArray();
     }
 
@@ -62,37 +88,59 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        CollectionItem item = items.get(position);
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
+        final CollectionItem item = items.get(position);
 
-        holder.getPhotoField().setScaleType(ImageView.ScaleType.CENTER_CROP);
         holder.getTitleField().setText(item.getTitle());
+        holder.getDescField().setText(item.getDescription());
 
         if(selectedItems.get(position, false)) {
-            holder.getPhotoField().setColorFilter(R.color.fadeImage);
+            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.fadeImage));
         } else {
-            holder.getPhotoField().setColorFilter(null);
+            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.transparent));
         }
 
-        // TODO Get Image from real source.
         if(item.getPhotoPath() != null) {
-            if(item.getPhotoPath().equals("3")) {
-                holder.getPhotoField().setImageResource(R.drawable.shells);
-            } else if(item.getPhotoPath().equals("4")) {
-                holder.getPhotoField().setImageResource(R.drawable.cds);
-            } else {
-//            holder.getPhotoField().setImageURI(Uri.parse(storage.getPhotoPath()));
-                holder.getPhotoField().setImageResource(R.drawable.absolut_vodka_bottles);
-            }
-        } else {
-            holder.getPhotoField().setImageResource(R.drawable.beer_bottle_caps_collection);
-//            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon), 30, 30, true));
+            Picasso.with(context)
+                    .load(new File(item.getPhotoPath()))
+                    .resize(LIST_ICON_SIZE, LIST_ICON_SIZE)
+                    .centerCrop()
+                    .error(R.drawable.shells)
+                    .into(holder.getPhotoField());
         }
+
+        final Bitmap bmp = BitmapFactory.decodeFile(item.getPhotoPath());
+//        if(bmp != null)
+//        holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(bmp, LIST_ICON_SIZE, LIST_ICON_SIZE, true));
+
+        holder.photoField.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(bmp != null)
+                    fullImage(bmp);
+            }
+        });
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (context.isActionMode()) {
+                    select(position);
+                } else {
+                    Intent intent = new Intent(context, NewItemActivity.class);
+                    intent.putExtra("collection_item", item);
+                    intent.putExtra("collection_storage", storage);
+                    context.startActivityForResult(intent, Collections.REQUEST_MODIFY_COLLECTION_ITEM);
+                }
+            }
+        });
 
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                context.startSupportActionMode(context);
+                select(position);
+                return true;
             }
         });
     }
@@ -116,7 +164,7 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         notifyItemChanged(position);
 
         int selectedCount = getSelectedItemsCount();
-//        fragment.getActionMode().setTitle(String.valueOf(selectedCount)); TODO Create Action Mode for Collection Items
+        context.getActionMode().setTitle(String.valueOf(selectedCount));
     }
 
     public void deselectAll() {
@@ -126,11 +174,22 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
 
     public int getSelectedItemsCount(){ return selectedItems.size(); }
 
-    public List<CollectionStorage> getSelectedItems() {
-        List<CollectionStorage> items = new ArrayList<>(selectedItems.size());
-        for (int i = 0; i < selectedItems.size(); i++) {
-            items.add(items.get(selectedItems.keyAt(i)));
+    public List<CollectionItem> getSelectedItems() {
+        List<CollectionItem> selectedObjects = new ArrayList<>(getSelectedItemsCount());
+        for (int i = 0; i < getSelectedItemsCount(); i++) {
+            selectedObjects.add(items.get(selectedItems.keyAt(i)));
         }
-        return items;
+        return selectedObjects;
+    }
+
+    public void fullImage(Bitmap image) {
+        Dialog mSplashDialog = new Dialog(context);
+        mSplashDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mSplashDialog.setContentView(R.layout.image_fullscreen);
+        mSplashDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        mSplashDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mSplashDialog.setCancelable(true);
+        ((ImageView) mSplashDialog.findViewById(R.id.imageview_fullscreen)).setImageBitmap(image);
+        mSplashDialog.show();
     }
 }

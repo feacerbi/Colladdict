@@ -2,36 +2,41 @@ package br.com.felipeacerbi.colladdict.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.Slide;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.TextView;
+
+import java.io.File;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
-import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 import br.com.felipeacerbi.colladdict.tasks.InsertItemTask;
-import br.com.felipeacerbi.colladdict.tasks.InsertStorageTask;
-import br.com.felipeacerbi.colladdict.ui.InsertItemUIHelper;
-import br.com.felipeacerbi.colladdict.ui.InsertStorageUIHelper;
+import br.com.felipeacerbi.colladdict.ui.ItemUIHelper;
 
 public class NewItemActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private TextView saveButton;
-    private InsertItemUIHelper uiHelper;
+    private ItemUIHelper uiHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_item);
 
-        uiHelper = new InsertItemUIHelper(this);
+        uiHelper = new ItemUIHelper(this);
 
         setToolbar();
     }
@@ -67,6 +72,52 @@ public class NewItemActivity extends AppCompatActivity {
             }
         });
         setSupportActionBar(toolbar);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Activity.RESULT_OK) {
+            if(requestCode == Collections.TAKE_PICTURE) {
+                uiHelper.setPhoto(uiHelper.getExtPath());
+            } else if(requestCode == Collections.BROWSE) {
+                uiHelper.setPhoto(uiHelper.getBitmapPath(data));
+            }
+        }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.photo_select, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.action_camera:
+                Intent cam = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                uiHelper.setExtPath(getExternalFilesDir(null) + "/" + System.currentTimeMillis() + ".jpg");
+                cam.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(uiHelper.getExtPath())));
+                if(cam.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(cam, Collections.TAKE_PICTURE);
+                } else {
+                    Snackbar.make(findViewById(R.id.coordinator), "No Camera app fuond", Snackbar.LENGTH_SHORT).show();
+                }
+                return true;
+            case R.id.action_gallery:
+                Intent gal = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                if(gal.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(gal, Collections.BROWSE);
+                } else {
+                    Snackbar.make(findViewById(R.id.coordinator), "No Gallery app fuond", Snackbar.LENGTH_SHORT).show();
+                }
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     @Override

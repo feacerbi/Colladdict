@@ -8,6 +8,9 @@
     <string name="action_edit_photo">Edit Photo</string>
     <string name="action_edit_collection">Edit Collection</string>
     <string name="action_remove_collection">Remove Collection</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_camera">Camera</string>
+    <string name="action_gallery">Gallery</string>
 
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>

@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorAccentDark">#F50057</color>
     <color name="fadeImage">#AAAAAAAA</color>
+    <color name="noColor">#00000000</color>
 </resources>

@@ -28,7 +28,7 @@
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
                 android:elevation="0dp"
-                android:src="@drawable/absolut_vodka_bottles"/>
+                android:src="@drawable/shells"/>
 
             <TextView
                 android:id="@+id/scrimTool"
@@ -47,6 +47,7 @@
             </TextView>
 
             <LinearLayout
+                android:id="@+id/button_edit_collection_image"
                 android:layout_width="wrap_content"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_gravity="bottom|end"

@@ -26,6 +26,8 @@ public class Collections extends AppCompatActivity
     public static final int REQUEST_MODIFY_COLLECTION_STORAGE = 101;
     public static final int REQUEST_NEW_COLLECTION_ITEM = 102;
     public static final int REQUEST_MODIFY_COLLECTION_ITEM = 103;
+    public static final int TAKE_PICTURE = 104;
+    public static final int BROWSE = 105;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -10,6 +10,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,7 +52,8 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
-        LINEAR_LAYOUT_MANAGER
+        LINEAR_LAYOUT_MANAGER,
+        STAGGERED_LAYOUT_MANAGER
     }
 
     public static CollectionStorageFragment newInstance() {
@@ -73,12 +75,6 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        reload();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View collectionsList = inflater.inflate(R.layout.fragment_collections, container, false);
@@ -87,7 +83,10 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         emptyText = (TextView) collectionsList.findViewById(R.id.empty_text);
         fab = (FloatingActionButton) collectionsList.findViewById(R.id.fab);
 
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+        itemAnimator.setAddDuration(1000);
+        itemAnimator.setRemoveDuration(1000);
+        recyclerView.setItemAnimator(itemAnimator);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,7 +96,6 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
             }
         });
 
-        layoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
         currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
 
 //        if (savedInstanceState != null) {
@@ -108,6 +106,12 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         setRecyclerViewLayoutManager(currentLayoutManagerType);
 
         return collectionsList;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        reload();
     }
 
     public void reload() {
@@ -181,7 +185,7 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
             case R.id.action_remove_collection:
                 deleteList = collectionStoragesAdapter.getSelectedItems();
                 new RemoveStoragesTask((Collections) getActivity()).execute(deleteList);
-                new LoadStoragesTask(this, recyclerView, emptyText).execute();
+                reloadAndScroll();
                 Snackbar.make(getView().findViewById(R.id.coordinator), "Collections removed", Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
@@ -192,7 +196,6 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
                                 reloadAndScroll();
                             }
                         }).show();
-                reloadAndScroll();
                 mode.finish();
                 return true;
             default:

@@ -160,6 +160,12 @@ public final class CollectionsContract {
 
         String selection = CollectionStorages._ID + " LIKE ?";
         String[] selectionArgs = { String.valueOf(id) };
+
+        List<CollectionItem> items = getCollectionItems(id);
+        for(CollectionItem item : items) {
+            deleteCollectionItem(item.getId());
+        }
+
         return db.delete(
                 CollectionStorages.TABLE_NAME,
                 selection,

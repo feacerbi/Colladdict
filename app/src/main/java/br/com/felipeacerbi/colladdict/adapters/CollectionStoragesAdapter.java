@@ -1,8 +1,11 @@
 package br.com.felipeacerbi.colladdict.adapters;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -11,6 +14,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +31,7 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
  */
 public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionStoragesAdapter.ViewHolder> {
 
-    private Collections context;
+    private AppCompatActivity context;
     private CollectionStorageFragment fragment;
     private List<CollectionStorage> storages;
     private SparseBooleanArray selectedItems;
@@ -55,7 +61,7 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
         this.fragment = fragment;
         this.storages = storages;
         selectedItems = new SparseBooleanArray();
-        context = (Collections) fragment.getActivity();
+        context = (AppCompatActivity) fragment.getActivity();
     }
 
     @Override
@@ -77,19 +83,24 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
             holder.getPhotoField().setColorFilter(null);
         }
 
-        // TODO Get Image from real source.
         if(storage.getPhotoPath() != null) {
-            if(storage.getPhotoPath().equals("3")) {
-                holder.getPhotoField().setImageResource(R.drawable.shells);
-            } else if(storage.getPhotoPath().equals("4")) {
-                holder.getPhotoField().setImageResource(R.drawable.cds);
-            } else {
-//            holder.getPhotoField().setImageURI(Uri.parse(storage.getPhotoPath()));
-                holder.getPhotoField().setImageResource(R.drawable.absolut_vodka_bottles);
-            }
+//            Bitmap bmp = BitmapFactory.decodeFile(storage.getPhotoPath());
+//            holder.photoField.setImageBitmap(Bitmap.createScaledBitmap(bmp, 300, 400, true));
+            Picasso.with(context)
+                    .load(new File(storage.getPhotoPath()))
+                    .resize(300, 400)
+                    .centerCrop()
+                    .error(android.R.drawable.btn_default)
+                    .into(holder.photoField);
         } else {
-            holder.getPhotoField().setImageResource(R.drawable.beer_bottle_caps_collection);
-//            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon), 300, 400, true));
+//            Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.shells);
+//            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(bmp, 300, 400, true));
+            Picasso.with(context)
+                    .load(R.drawable.shells)
+                    .resize(300, 400)
+                    .centerCrop()
+                    .error(android.R.drawable.btn_default)
+                    .into(holder.photoField);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -100,8 +111,9 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
                 } else {
                     Pair photoPair = Pair.create(holder.getPhotoField(), "photo");
                     Intent intent = new Intent(context, CollectionItemsActivity.class);
-                    intent.putExtra("storage", storage);
+                    intent.putExtra("collection_storage", storage);
                     context.startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(context, photoPair).toBundle());
+                    //context.startActivity(intent);
                 }
             }
         });
@@ -146,10 +158,10 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
     public int getSelectedItemsCount(){ return selectedItems.size(); }
 
     public List<CollectionStorage> getSelectedItems() {
-        List<CollectionStorage> items = new ArrayList<>(selectedItems.size());
-        for (int i = 0; i < selectedItems.size(); i++) {
-            items.add(storages.get(selectedItems.keyAt(i)));
+        List<CollectionStorage> selectedObjects = new ArrayList<>(getSelectedItemsCount());
+        for (int i = 0; i < getSelectedItemsCount(); i++) {
+            selectedObjects.add(storages.get(selectedItems.keyAt(i)));
         }
-        return items;
+        return selectedObjects;
     }
 }

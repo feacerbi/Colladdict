@@ -1,7 +1,13 @@
 package br.com.felipeacerbi.colladdict.ui;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,6 +18,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -31,7 +38,7 @@ import br.com.felipeacerbi.colladdict.tasks.LoadCategoriesTask;
 /**
  * Created by felipe.acerbi on 30/10/2015.
  */
-public class InsertStorageUIHelper {
+public class StorageUIHelper {
 
     public static final String DEFAULT_PATH = Environment.getExternalStorageDirectory() + "/Colladdict/";
 
@@ -46,8 +53,10 @@ public class InsertStorageUIHelper {
     private ImageView addCategoryButton;
     private TextView categoryField;
     private TextView saveButton;
+    private LinearLayout photoButton;
+    private String extPath;
 
-    public InsertStorageUIHelper(NewCollectionActivity nca) {
+    public StorageUIHelper(NewCollectionActivity nca) {
 
         this.nca = nca;
 
@@ -57,6 +66,8 @@ public class InsertStorageUIHelper {
         if(isModify) {
             saveButton.setText("UPDATE");
             categoryField.setText(category.getTitle());
+        } else {
+            categoryField.setText("Default");
         }
     }
 
@@ -66,13 +77,21 @@ public class InsertStorageUIHelper {
         titleField = (EditText) nca.findViewById(R.id.collection_title);
         descField = (EditText) nca.findViewById(R.id.collection_description);
         photo = (ImageView) nca.findViewById(R.id.collection_photo);
+
+        photoButton = (LinearLayout) nca.findViewById(R.id.button_edit_collection_image);
+        nca.registerForContextMenu(photoButton);
+        photoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nca.openContextMenu(v);
+            }
+        });
+        
         categoryField = (TextView) nca.findViewById(R.id.collection_category);
         categoryField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 new LoadCategoriesTask(nca, categoryField).execute();
-
             }
         });
         addCategoryButton = (ImageView) nca.findViewById(R.id.add_category_icon);
@@ -139,6 +158,10 @@ public class InsertStorageUIHelper {
             descField.setText(storage.getDescription());
             category = storage.getCategory();
 
+            if(storage.getPhotoPath() != null) {
+                setPhoto(storage.getPhotoPath());
+            }
+
             return true;
         }
 
@@ -169,14 +192,31 @@ public class InsertStorageUIHelper {
         this.path = path;
     }
 
-    // TODO Handle photo from camera/storage.
-//    public void setPhoto() {
-//        Ion.with(photo)
-//                .placeholder(R.drawable.ic_contact_picture_big)
-//                .error(R.drawable.ic_contact_picture_big)
-//                .load(getPath());
-//    }
+    public String getExtPath() {
+        return extPath;
+    }
 
+    public void setExtPath(String extPath) {
+        this.extPath = extPath;
+    }
+
+    public void setPhoto(String path) {
+        setPath(path);
+        Bitmap bmp = BitmapFactory.decodeFile(getPath());
+        photo.setImageBitmap(Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true));
+    }
+
+    public String getBitmapPath(Intent data){
+        Uri selectedImage = data.getData();
+        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+        Cursor cursor = nca.getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String picturePath = cursor.getString(columnIndex);
+        cursor.close();
+
+        return picturePath;
+    }
 
     public boolean isModify() {
         return isModify;

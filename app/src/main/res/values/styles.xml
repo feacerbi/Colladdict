@@ -27,7 +27,13 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">@color/colorAccent</item>
-        <item name="colorControlActivated">#00000000</item>
+        <item name="colorControlActivated">@color/noColor</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlayNoColor" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:actionModeBackground">@color/noColor</item>
+        <item name="colorControlActivated">@color/noColor</item>
     </style>
 
     <!--<style name="AppTheme.FloatingActionButton" parent="ThemeOverlay.AppCompat.Dark.ActionBar">-->
