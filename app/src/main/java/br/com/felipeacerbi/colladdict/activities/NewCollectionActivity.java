@@ -36,9 +36,9 @@ public class NewCollectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_collection);
 
-        uiHelper = new StorageUIHelper(this);
-
         setToolbar();
+
+        uiHelper = new StorageUIHelper(this);
     }
 
     @Override

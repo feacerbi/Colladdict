@@ -18,6 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.File;
 
 import br.com.felipeacerbi.colladdict.R;
@@ -68,8 +70,8 @@ public class ItemUIHelper {
         titleField = (EditText) nia.findViewById(R.id.collection_title);
         descField = (EditText) nia.findViewById(R.id.collection_description);
         photo = (ImageView) nia.findViewById(R.id.collection_photo);
-
         photoButton = (LinearLayout) nia.findViewById(R.id.button_edit_item_image);
+
         nia.registerForContextMenu(photoButton);
         photoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +104,8 @@ public class ItemUIHelper {
 
             if(item.getPhotoPath() != null) {
                 setPhoto(item.getPhotoPath());
+            } else {
+                setPhoto("default");
             }
 
             return true;
@@ -141,8 +145,12 @@ public class ItemUIHelper {
 
     public void setPhoto(String path) {
         setPath(path);
-        Bitmap bmp = BitmapFactory.decodeFile(getPath());
-        photo.setImageBitmap(Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true));
+
+        Picasso.with(nia)
+                .load(new File(getPath()))
+                .fit()
+                .error(R.drawable.beer_bottle_caps_collection)
+                .into(photo);
     }
 
     public String getBitmapPath(Intent data){

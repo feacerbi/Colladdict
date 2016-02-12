@@ -109,15 +109,11 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
                     .into(holder.getPhotoField());
         }
 
-        final Bitmap bmp = BitmapFactory.decodeFile(item.getPhotoPath());
-//        if(bmp != null)
-//        holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(bmp, LIST_ICON_SIZE, LIST_ICON_SIZE, true));
-
         holder.photoField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(bmp != null)
-                    fullImage(bmp);
+                if(item.getPhotoPath() != null)
+                    fullImage(item.getPhotoPath());
             }
         });
 
@@ -143,10 +139,6 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
                 return true;
             }
         });
-    }
-
-    public List<CollectionItem> getItems() {
-        return items;
     }
 
     @Override
@@ -182,14 +174,18 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         return selectedObjects;
     }
 
-    public void fullImage(Bitmap image) {
+    public void fullImage(String path) {
         Dialog mSplashDialog = new Dialog(context);
         mSplashDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mSplashDialog.setContentView(R.layout.image_fullscreen);
         mSplashDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         mSplashDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         mSplashDialog.setCancelable(true);
-        ((ImageView) mSplashDialog.findViewById(R.id.imageview_fullscreen)).setImageBitmap(image);
+        Picasso.with(context)
+                .load(new File(path))
+                .fit()
+                .error(R.drawable.shells)
+                .into(((ImageView) mSplashDialog.findViewById(R.id.imageview_fullscreen)));
         mSplashDialog.show();
     }
 }

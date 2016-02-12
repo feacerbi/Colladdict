@@ -24,6 +24,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -160,6 +162,8 @@ public class StorageUIHelper {
 
             if(storage.getPhotoPath() != null) {
                 setPhoto(storage.getPhotoPath());
+            } else {
+                setPhoto("default");
             }
 
             return true;
@@ -202,8 +206,12 @@ public class StorageUIHelper {
 
     public void setPhoto(String path) {
         setPath(path);
-        Bitmap bmp = BitmapFactory.decodeFile(getPath());
-        photo.setImageBitmap(Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true));
+
+        Picasso.with(nca)
+                .load(new File(getPath()))
+                .fit()
+                .error(R.drawable.shells)
+                .into(photo);
     }
 
     public String getBitmapPath(Intent data){

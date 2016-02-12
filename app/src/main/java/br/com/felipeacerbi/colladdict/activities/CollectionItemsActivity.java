@@ -129,6 +129,8 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
 //                    .getSerializable(KEY_LAYOUT_MANAGER);
 //        }
         setRecyclerViewLayoutManager(currentLayoutManagerType);
+
+        CollectionItemsAdapter adapter = new CollectionItemsAdapter(this, null, storage);
     }
 
     @Override
@@ -154,9 +156,8 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
     public void setToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        setSupportActionBar(toolbar);
         collapsingToolbarLayout.setTitle(storage.getTitle());
-        toolbar.setTitle(storage.getTitle());
+        setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,18 +165,16 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
             }
         });
 
-        if(storage.getPhotoPath() != null) {
-//            Bitmap bmp = BitmapFactory.decodeFile(storage.getPhotoPath());
-//            coverPhoto.setImageBitmap(Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true));
+        if (storage.getPhotoPath() != null) {
             Picasso.with(this)
                     .load(new File(storage.getPhotoPath()))
+                    .fit()
                     .error(android.R.drawable.btn_default)
                     .into(coverPhoto);
         } else {
-//            Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.shells);
-//            coverPhoto.setImageBitmap(Bitmap.createScaledBitmap(bmp, bmp.getWidth(), bmp.getHeight(), true));
             Picasso.with(this)
-                    .load(R.drawable.shells)
+                    .load("default")
+                    .fit()
                     .error(android.R.drawable.btn_default)
                     .into(coverPhoto);
         }

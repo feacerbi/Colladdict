@@ -29,7 +29,7 @@
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
                 android:elevation="0dp"
-                android:src="@drawable/absolut_vodka_bottles"/>
+                android:src="@drawable/beer_bottle_caps_collection"/>
 
             <TextView
                 android:id="@+id/scrimTool"

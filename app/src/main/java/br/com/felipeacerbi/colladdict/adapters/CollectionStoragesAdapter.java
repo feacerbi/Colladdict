@@ -74,7 +74,6 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final CollectionStorage storage = storages.get(position);
 
-        holder.getPhotoField().setScaleType(ImageView.ScaleType.CENTER_CROP);
         holder.getTitleField().setText(storage.getTitle());
 
         if(selectedItems.get(position, false)) {
@@ -84,22 +83,11 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
         }
 
         if(storage.getPhotoPath() != null) {
-//            Bitmap bmp = BitmapFactory.decodeFile(storage.getPhotoPath());
-//            holder.photoField.setImageBitmap(Bitmap.createScaledBitmap(bmp, 300, 400, true));
             Picasso.with(context)
                     .load(new File(storage.getPhotoPath()))
                     .resize(300, 400)
                     .centerCrop()
-                    .error(android.R.drawable.btn_default)
-                    .into(holder.photoField);
-        } else {
-//            Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.shells);
-//            holder.getPhotoField().setImageBitmap(Bitmap.createScaledBitmap(bmp, 300, 400, true));
-            Picasso.with(context)
-                    .load(R.drawable.shells)
-                    .resize(300, 400)
-                    .centerCrop()
-                    .error(android.R.drawable.btn_default)
+                    .error(R.drawable.shape_scrim)
                     .into(holder.photoField);
         }
 

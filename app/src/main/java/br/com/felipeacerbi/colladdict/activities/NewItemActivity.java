@@ -36,9 +36,9 @@ public class NewItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_item);
 
-        uiHelper = new ItemUIHelper(this);
-
         setToolbar();
+
+        uiHelper = new ItemUIHelper(this);
     }
 
     @Override
