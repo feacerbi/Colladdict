@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,17 +108,13 @@ public final class CollectionsContract {
         CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
-        if(storage.getCategory() == null) {
-            Category defaultCategory = new Category("Default");
-            defaultCategory.setId(insertCategory(defaultCategory));
-            storage.setCategory(defaultCategory);
-        }
-
         ContentValues values = new ContentValues();
         values.put(CollectionStorages.COLUMN_NAME_TITLE, storage.getTitle());
         values.put(CollectionStorages.COLUMN_NAME_DESCRIPTION, storage.getDescription());
         values.put(CollectionStorages.COLUMN_NAME_PHOTO_PATH, storage.getPhotoPath());
-        values.put(CollectionStorages.COLUMN_NAME_CATEGORY_ID, storage.getCategory().getId());
+        if(storage.getCategory() != null) {
+            values.put(CollectionStorages.COLUMN_NAME_CATEGORY_ID, storage.getCategory().getId());
+        }
 
         return db.insert(
                 CollectionStorages.TABLE_NAME,
@@ -258,7 +255,6 @@ public final class CollectionsContract {
         SQLiteDatabase db = csDbHelper.getWritableDatabase();
 
         List<CollectionStorage> storages = new ArrayList<>();
-        List<ListItem> categories = getCategories();
 
         String[] projection = {
                 CollectionStorages._ID,
@@ -285,7 +281,13 @@ public final class CollectionsContract {
                 storage.setTitle(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_TITLE)));
                 storage.setDescription(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_DESCRIPTION)));
                 storage.setPhotoPath(c.getString(c.getColumnIndex(CollectionStorages.COLUMN_NAME_PHOTO_PATH)));
-                storage.setCategory((Category) categories.get(c.getInt(c.getColumnIndex(CollectionStorages.COLUMN_NAME_CATEGORY_ID)) - 1));
+
+                Category category = getCategoryById(c.getInt(c.getColumnIndex(CollectionStorages.COLUMN_NAME_CATEGORY_ID)));
+                if(category != null) {
+                    storage.setCategory(category);
+                } else {
+                    storage.setCategory(getCategories().get(0));
+                }
 
                 storages.add(storage);
             } while(c.moveToNext());
@@ -343,25 +345,10 @@ public final class CollectionsContract {
         return items;
     }
 
-    public List<ListItem> getCategories() {
-        CollectionsDbHelper csDbHelper = new CollectionsDbHelper(context);
-        SQLiteDatabase db = csDbHelper.getWritableDatabase();
+    public List<Category> getCategories() {
 
-        List<ListItem> categories = new ArrayList<>();
-
-        String[] projection = {
-                Categories._ID,
-                Categories.COLUMN_NAME_TITLE};
-
-        Cursor c = db.query(
-                Categories.TABLE_NAME,  // The table to query
-                projection,                     // The columns to return
-                null,                           // The columns for the WHERE clause
-                null,                           // The values for the WHERE clause
-                null,                           // don't group the rows
-                null,                           // don't filter by row groups
-                null                            // The sort order
-        );
+        List<Category> categories = new ArrayList<>();
+        Cursor c = getCategoriesCursor();
 
         if(c.moveToFirst()) {
             do {
@@ -369,7 +356,7 @@ public final class CollectionsContract {
 
                 category.setId(c.getLong(c.getColumnIndex(Categories._ID)));
                 category.setTitle(c.getString(c.getColumnIndex(Categories.COLUMN_NAME_TITLE)));
-
+                Log.v("Acerbi", "Name: " + category.getTitle() + " Id: " + category.getId());
                 categories.add(category);
             } while(c.moveToNext());
         }
@@ -412,5 +399,26 @@ public final class CollectionsContract {
         category.setTitle(cursor.getString(cursor.getColumnIndex(CollectionsContract.Categories.COLUMN_NAME_TITLE)));
 
         return category;
+    }
+
+    public Category getCategoryById(long id) {
+        Cursor c = getCategoriesCursor();
+        Category category = new Category();
+
+        if(c.moveToFirst()) {
+            do {
+
+                long newId = (c.getLong(c.getColumnIndex(Categories._ID)));
+
+                if(id == newId) {
+                    category.setId(newId);
+                    category.setTitle(c.getString(c.getColumnIndex(CollectionsContract.Categories.COLUMN_NAME_TITLE)));
+                    return category;
+                }
+
+            } while(c.moveToNext());
+        }
+
+        return null;
     }
 }

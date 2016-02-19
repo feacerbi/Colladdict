@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.transition.Slide;
 import android.view.ContextMenu;
@@ -22,10 +23,10 @@ import java.io.File;
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
-import br.com.felipeacerbi.colladdict.tasks.InsertItemTask;
+import br.com.felipeacerbi.colladdict.tasks.InsertTask;
 import br.com.felipeacerbi.colladdict.ui.ItemUIHelper;
 
-public class NewItemActivity extends AppCompatActivity {
+public class NewItemActivity extends AppCompatActivity implements TaskManager {
 
     private Toolbar toolbar;
     private TextView saveButton;
@@ -50,7 +51,7 @@ public class NewItemActivity extends AppCompatActivity {
             public void onClick(View view) {
                 CollectionItem item = uiHelper.getCollectionItem();
 
-                new InsertItemTask(NewItemActivity.this, uiHelper.isModify()).execute(item);
+                new InsertTask(NewItemActivity.this, uiHelper.isModify()).execute(item);
 
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("collection_item", item);
@@ -144,7 +145,28 @@ public class NewItemActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @Override
+    public AppCompatActivity getAppCompatActivity() {
+        return this;
+    }
+
+    @Override
     public CollectionsApplication getApp() {
         return (CollectionsApplication) getApplication();
+    }
+
+    @Override
+    public ActionMode getActionMode() {
+        return null;
+    }
+
+    @Override
+    public boolean isActionMode() {
+        return false;
+    }
+
+    @Override
+    public ActionMode.Callback getActionModeCallback() {
+        return null;
     }
 }

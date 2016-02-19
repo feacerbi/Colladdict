@@ -3,38 +3,26 @@ package br.com.felipeacerbi.colladdict.ui;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.models.Category;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
-import br.com.felipeacerbi.colladdict.tasks.InsertCategoryTask;
+import br.com.felipeacerbi.colladdict.tasks.InsertTask;
 import br.com.felipeacerbi.colladdict.tasks.LoadCategoriesTask;
 
 /**
@@ -109,7 +97,7 @@ public class StorageUIHelper {
                 alertDialog.create();
 
                 final EditText newCategoryField = (EditText) inputView.findViewById(R.id.new_category);
-                newCategoryField.setHint("Category Name");
+                newCategoryField.setHint(nca.getResources().getString(R.string.new_category_hint));
                 newCategoryField.requestFocus();
 
                 alertDialog.setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
@@ -118,9 +106,9 @@ public class StorageUIHelper {
                         String newCategoryName = newCategoryField.getText().toString();
                         if (!newCategoryName.isEmpty()) {
                             category = new Category(newCategoryName);
-
-                            new InsertCategoryTask(nca).execute(category);
+                            new InsertTask(nca, false).execute(category);
                             categoryField.setText(category.getTitle());
+                            categoryField.setTag(category);
                         }
                     }
                 })
@@ -159,11 +147,10 @@ public class StorageUIHelper {
             titleField.setText(storage.getTitle());
             descField.setText(storage.getDescription());
             category = storage.getCategory();
+            categoryField.setTag(category);
 
             if(storage.getPhotoPath() != null) {
                 setPhoto(storage.getPhotoPath());
-            } else {
-                setPhoto("default");
             }
 
             return true;
@@ -206,9 +193,10 @@ public class StorageUIHelper {
 
     public void setPhoto(String path) {
         setPath(path);
+        File test = new File(getPath());
 
         Picasso.with(nca)
-                .load(new File(getPath()))
+                .load(Uri.fromFile(new File(getPath())))
                 .fit()
                 .error(R.drawable.shells)
                 .into(photo);

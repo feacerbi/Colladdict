@@ -32,6 +32,7 @@ import br.com.felipeacerbi.colladdict.activities.CollectionItemsActivity;
 import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.activities.NewItemActivity;
+import br.com.felipeacerbi.colladdict.activities.TaskManager;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
@@ -40,7 +41,8 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
  */
 public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItemsAdapter.ViewHolder> {
 
-    private final CollectionItemsActivity context;
+    private final TaskManager context;
+    private final AppCompatActivity activity;
     private final SparseBooleanArray selectedItems;
     private List<CollectionItem> items;
     private CollectionStorage storage;
@@ -74,10 +76,11 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         }
     }
 
-    public CollectionItemsAdapter(CollectionItemsActivity context, List<CollectionItem> items, CollectionStorage storage) {
+    public CollectionItemsAdapter(TaskManager context, List<CollectionItem> items, CollectionStorage storage) {
         this.context = context;
         this.items = items;
         this.storage = storage;
+        this.activity = context.getAppCompatActivity();
         selectedItems = new SparseBooleanArray();
     }
 
@@ -95,13 +98,13 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         holder.getDescField().setText(item.getDescription());
 
         if(selectedItems.get(position, false)) {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.fadeImage));
+            holder.itemView.setBackgroundColor(activity.getResources().getColor(R.color.fadeImage));
         } else {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.transparent));
+            holder.itemView.setBackgroundColor(activity.getResources().getColor(android.R.color.transparent));
         }
 
         if(item.getPhotoPath() != null) {
-            Picasso.with(context)
+            Picasso.with(context.getAppCompatActivity())
                     .load(new File(item.getPhotoPath()))
                     .resize(LIST_ICON_SIZE, LIST_ICON_SIZE)
                     .centerCrop()
@@ -123,10 +126,10 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
                 if (context.isActionMode()) {
                     select(position);
                 } else {
-                    Intent intent = new Intent(context, NewItemActivity.class);
+                    Intent intent = new Intent(activity, NewItemActivity.class);
                     intent.putExtra("collection_item", item);
                     intent.putExtra("collection_storage", storage);
-                    context.startActivityForResult(intent, Collections.REQUEST_MODIFY_COLLECTION_ITEM);
+                    activity.startActivityForResult(intent, Collections.REQUEST_MODIFY_COLLECTION_ITEM);
                 }
             }
         });
@@ -134,7 +137,7 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                context.startSupportActionMode(context);
+                activity.startSupportActionMode(context.getActionModeCallback());
                 select(position);
                 return true;
             }
@@ -175,13 +178,13 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
     }
 
     public void fullImage(String path) {
-        Dialog mSplashDialog = new Dialog(context);
+        Dialog mSplashDialog = new Dialog(activity);
         mSplashDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mSplashDialog.setContentView(R.layout.image_fullscreen);
         mSplashDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         mSplashDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         mSplashDialog.setCancelable(true);
-        Picasso.with(context)
+        Picasso.with(activity)
                 .load(new File(path))
                 .fit()
                 .error(R.drawable.shells)

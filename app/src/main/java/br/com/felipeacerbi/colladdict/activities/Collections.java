@@ -4,23 +4,30 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
+import br.com.felipeacerbi.colladdict.fragments.CategoriesFragment;
 import br.com.felipeacerbi.colladdict.fragments.CollectionStorageFragment;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 public class Collections extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final int LOAD_COLLECTION_STORAGES = 0;
+    public static final int LOAD_COLLECTION_ITEMS = 1;
+    public static final int LOAD_CATEGORIES = 2;
 
     public static final int REQUEST_NEW_COLLECTION_STORAGE = 100;
     public static final int REQUEST_MODIFY_COLLECTION_STORAGE = 101;
@@ -102,15 +109,11 @@ public class Collections extends AppCompatActivity
 
         if (id == R.id.nav_collections) {
             fragmentTransaction.replace(R.id.container, CollectionStorageFragment.newInstance(), "collection_storages");
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_categories) {
+            fragmentTransaction.replace(R.id.container, CategoriesFragment.newInstance(), "categories");
+        } else if (id == R.id.nav_sett) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_search) {
 
         }
 
@@ -121,7 +124,7 @@ public class Collections extends AppCompatActivity
         return true;
     }
 
-    public CollectionsApplication getApp() {
-        return (CollectionsApplication) getApplication();
+    public Fragment getFragment(String tag) {
+        return getSupportFragmentManager().findFragmentByTag(tag);
     }
 }

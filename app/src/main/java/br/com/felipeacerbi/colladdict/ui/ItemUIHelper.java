@@ -1,36 +1,24 @@
 package br.com.felipeacerbi.colladdict.ui;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
 import br.com.felipeacerbi.colladdict.R;
-import br.com.felipeacerbi.colladdict.activities.Collections;
-import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.activities.NewItemActivity;
-import br.com.felipeacerbi.colladdict.models.Category;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
-import br.com.felipeacerbi.colladdict.tasks.InsertCategoryTask;
-import br.com.felipeacerbi.colladdict.tasks.LoadCategoriesTask;
 
 /**
  * Created by felipe.acerbi on 30/10/2015.
@@ -104,8 +92,6 @@ public class ItemUIHelper {
 
             if(item.getPhotoPath() != null) {
                 setPhoto(item.getPhotoPath());
-            } else {
-                setPhoto("default");
             }
 
             return true;

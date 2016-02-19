@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/category_name"
     android:singleLine="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/margin_medium"
-    android:textSize="18sp"
-    android:textAlignment="inherit"/>
+    android:layout_margin="@dimen/margin_medium">
+    <ImageView
+        android:id="@+id/remove_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@android:drawable/ic_menu_delete"/>
+    <TextView
+        android:id="@+id/category_title"
+        android:singleLine="true"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@id/remove_category"
+        android:textSize="18sp"
+        android:textAlignment="inherit"
+        android:text="Default"/>
+</RelativeLayout>

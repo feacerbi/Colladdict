@@ -7,6 +7,7 @@ import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.transition.Slide;
 import android.view.ContextMenu;
@@ -22,10 +23,10 @@ import java.io.File;
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
-import br.com.felipeacerbi.colladdict.tasks.InsertStorageTask;
+import br.com.felipeacerbi.colladdict.tasks.InsertTask;
 import br.com.felipeacerbi.colladdict.ui.StorageUIHelper;
 
-public class NewCollectionActivity extends AppCompatActivity {
+public class NewCollectionActivity extends AppCompatActivity implements TaskManager {
 
     private Toolbar toolbar;
     private TextView saveButton;
@@ -50,7 +51,7 @@ public class NewCollectionActivity extends AppCompatActivity {
             public void onClick(View view) {
                 CollectionStorage storage = uiHelper.getCollectionStorage();
 
-                new InsertStorageTask(NewCollectionActivity.this, uiHelper.isModify()).execute(storage);
+                new InsertTask(NewCollectionActivity.this, uiHelper.isModify()).execute(storage);
 
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("collection_storage", storage);
@@ -104,7 +105,7 @@ public class NewCollectionActivity extends AppCompatActivity {
                 if(cam.resolveActivity(getPackageManager()) != null) {
                     startActivityForResult(cam, Collections.TAKE_PICTURE);
                 } else {
-                    Snackbar.make(findViewById(R.id.coordinator), "No Camera app fuond", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(R.id.coordinator), "No Camera app found", Snackbar.LENGTH_SHORT).show();
                 }
                 return true;
             case R.id.action_gallery:
@@ -112,7 +113,7 @@ public class NewCollectionActivity extends AppCompatActivity {
                 if(gal.resolveActivity(getPackageManager()) != null) {
                     startActivityForResult(gal, Collections.BROWSE);
                 } else {
-                    Snackbar.make(findViewById(R.id.coordinator), "No Gallery app fuond", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(R.id.coordinator), "No Gallery app found", Snackbar.LENGTH_SHORT).show();
                 }
                 return true;
             default:
@@ -144,7 +145,28 @@ public class NewCollectionActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @Override
+    public AppCompatActivity getAppCompatActivity() {
+        return this;
+    }
+
+    @Override
     public CollectionsApplication getApp() {
         return (CollectionsApplication) getApplication();
+    }
+
+    @Override
+    public ActionMode getActionMode() {
+        return null;
+    }
+
+    @Override
+    public boolean isActionMode() {
+        return false;
+    }
+
+    @Override
+    public ActionMode.Callback getActionModeCallback() {
+        return null;
     }
 }

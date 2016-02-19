@@ -2,8 +2,6 @@ package br.com.felipeacerbi.colladdict.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -20,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,20 +29,17 @@ import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.adapters.CollectionItemsAdapter;
-import br.com.felipeacerbi.colladdict.adapters.CollectionStoragesAdapter;
+import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
-import br.com.felipeacerbi.colladdict.tasks.InsertItemTask;
-import br.com.felipeacerbi.colladdict.tasks.InsertStorageTask;
-import br.com.felipeacerbi.colladdict.tasks.LoadItemsTask;
-import br.com.felipeacerbi.colladdict.tasks.LoadStoragesTask;
-import br.com.felipeacerbi.colladdict.tasks.RemoveItemsTask;
-import br.com.felipeacerbi.colladdict.tasks.RemoveStoragesTask;
+import br.com.felipeacerbi.colladdict.tasks.InsertTask;
+import br.com.felipeacerbi.colladdict.tasks.LoadTask;
+import br.com.felipeacerbi.colladdict.tasks.RemoveTask;
 
 /**
  * Created by felipe.acerbi on 01/10/2015.
  */
-public class CollectionItemsActivity extends AppCompatActivity implements ActionMode.Callback {
+public class CollectionItemsActivity extends AppCompatActivity implements ActionMode.Callback, TaskManager {
 
     private static final String KEY_LAYOUT_MANAGER = "layoutManager";
     private static final int SPAN_COUNT = 2;
@@ -96,7 +90,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
     public void onContentChanged() {
         super.onContentChanged();
 
-        getWindow().setEnterTransition(new Fade());
+        //getWindow().setEnterTransition(new Fade());
 
         floatButton = (FloatingActionButton) findViewById(R.id.fab);
         coverPhoto = (ImageView) findViewById(R.id.collection_photo);
@@ -109,8 +103,6 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
         coverPhoto.setTransitionName("photo");
 
         RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-        itemAnimator.setAddDuration(1000);
-        itemAnimator.setRemoveDuration(1000);
         recyclerView.setItemAnimator(itemAnimator);
 
         floatButton.setOnClickListener(new View.OnClickListener() {
@@ -134,17 +126,17 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    public void onEnterAnimationComplete() {
+        super.onEnterAnimationComplete();
         reload();
     }
 
     public void reload() {
-        new LoadItemsTask(this, recyclerView, emptyText, storage).execute();
+        new LoadTask(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_ITEMS, storage).execute();
     }
 
     public void reloadAndScroll() {
-        new LoadItemsTask(this, recyclerView, emptyText, storage).execute();
+        reload();
 
         collectionItemsAdapter = (CollectionItemsAdapter) recyclerView.getAdapter();
         // TODO Fix scroll to position.
@@ -236,14 +228,14 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
         switch (menuItem.getItemId()) {
             case R.id.action_remove_collection_item:
                 deleteList = collectionItemsAdapter.getSelectedItems();
-                new RemoveItemsTask(this).execute(deleteList);
+                new RemoveTask(this).execute(deleteList);
                 reloadAndScroll();
                 Snackbar.make(findViewById(R.id.coordinator), "Items removed", Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 for (CollectionItem item : deleteList) {
-                                    new InsertItemTask(CollectionItemsActivity.this, false).execute(item);
+                                    new InsertTask(CollectionItemsActivity.this, false).execute(item);
                                 }
                                 reloadAndScroll();
                             }
@@ -262,12 +254,19 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
         isActionMode = false;
     }
 
+    @Override
     public ActionMode getActionMode() {
         return actionMode;
     }
 
+    @Override
     public boolean isActionMode() {
         return isActionMode;
+    }
+
+    @Override
+    public ActionMode.Callback getActionModeCallback() {
+        return this;
     }
 
     @Override
@@ -326,5 +325,15 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
     @Override
     public void onBackPressed() {
         supportFinishAfterTransition();
+    }
+
+    @Override
+    public AppCompatActivity getAppCompatActivity() {
+        return this;
+    }
+
+    @Override
+    public CollectionsApplication getApp() {
+        return (CollectionsApplication) getApplication();
     }
 }

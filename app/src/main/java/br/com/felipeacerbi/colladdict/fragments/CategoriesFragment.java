@@ -1,33 +1,35 @@
 package br.com.felipeacerbi.colladdict.fragments;
 
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
+
 import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.Collections;
-import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.activities.TaskManager;
+import br.com.felipeacerbi.colladdict.adapters.CategoriesAdapter;
 import br.com.felipeacerbi.colladdict.adapters.CollectionStoragesAdapter;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
+import br.com.felipeacerbi.colladdict.models.Category;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 import br.com.felipeacerbi.colladdict.tasks.InsertTask;
@@ -37,7 +39,7 @@ import br.com.felipeacerbi.colladdict.tasks.RemoveTask;
 /**
  * Created by felipe.acerbi on 28/09/2015.
  */
-public class CollectionStorageFragment extends Fragment implements ActionMode.Callback, TaskManager {
+public class CategoriesFragment extends Fragment implements ActionMode.Callback, TaskManager {
 
     private static final String KEY_LAYOUT_MANAGER = "layoutManager";
     private static final int SPAN_COUNT = 2;
@@ -45,14 +47,14 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
 
-    private CollectionStoragesAdapter collectionStoragesAdapter;
     private TextView emptyText;
     private FloatingActionButton fab;
     private MenuItem layoutMenuItem;
     private boolean isActionMode;
     private ActionMode actionMode;
-    private List<CollectionStorage> deleteList;
+    private List<Category> deleteList;
     private LayoutManagerType currentLayoutManagerType;
+    private CategoriesAdapter categoriesAdapter;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -60,45 +62,65 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         STAGGERED_LAYOUT_MANAGER
     }
 
-    public static CollectionStorageFragment newInstance() {
-        CollectionStorageFragment fragment = new CollectionStorageFragment();
+    public static CategoriesFragment newInstance() {
+        CategoriesFragment fragment = new CategoriesFragment();
         fragment.setHasOptionsMenu(true);
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public CollectionStorageFragment() {
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        isActionMode = false;
+    public CategoriesFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View collectionsList = inflater.inflate(R.layout.fragment_collections, container, false);
+        View categoriesList = inflater.inflate(R.layout.fragment_categories, container, false);
 
-        recyclerView = (RecyclerView) collectionsList.findViewById(R.id.all_collections);
-        emptyText = (TextView) collectionsList.findViewById(R.id.empty_text);
-        fab = (FloatingActionButton) collectionsList.findViewById(R.id.fab);
-
-        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-        recyclerView.setItemAnimator(itemAnimator);
+        recyclerView = (RecyclerView) categoriesList.findViewById(R.id.all_categories);
+        emptyText = (TextView) categoriesList.findViewById(R.id.empty_text);
+        fab = (FloatingActionButton) categoriesList.findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), NewCollectionActivity.class);
-                getActivity().startActivityForResult(intent, Collections.REQUEST_NEW_COLLECTION_STORAGE);
+                LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+                View inputView = layoutInflater.inflate(R.layout.input_dialog_view, null);
+
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity())
+                        .setView(inputView);
+                alertDialog.create();
+
+                final EditText newCategoryField = (EditText) inputView.findViewById(R.id.new_category);
+                newCategoryField.setHint(getResources().getString(R.string.new_category_hint));
+                newCategoryField.requestFocus();
+
+                alertDialog.setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String newCategoryName = newCategoryField.getText().toString();
+                        if (!newCategoryName.isEmpty()) {
+                            Category category = new Category(newCategoryName);
+                            new InsertTask(CategoriesFragment.this, false).execute(category);
+                            categoriesAdapter = (CategoriesAdapter) recyclerView.getAdapter();
+                            categoriesAdapter.add(category);
+                            categoriesAdapter.notifyItemInserted(categoriesAdapter.getItemCount()-1);
+                        }
+                    }
+                })
+                        .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Cancel Action
+                            }
+                        })
+                        .setTitle("Add Category")
+                        .show();
             }
         });
 
-        currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
+        currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
 
 //        if (savedInstanceState != null) {
 //            currentLayoutManagerType = (LayoutManagerType) savedInstanceState
@@ -107,28 +129,28 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
 
         setRecyclerViewLayoutManager(currentLayoutManagerType);
 
-        return collectionsList;
+        return categoriesList;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         reload();
     }
 
     public void reload() {
-        new LoadTask(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_STORAGES, null).execute();
+        new LoadTask(this, recyclerView, emptyText, Collections.LOAD_CATEGORIES, null).execute();
     }
 
     public void reloadAndScroll() {
         reload();
 
-        collectionStoragesAdapter = (CollectionStoragesAdapter) recyclerView.getAdapter();
+        categoriesAdapter = (CategoriesAdapter) recyclerView.getAdapter();
         // TODO Fix scroll to position.
         int scrollPosition = 0;
-        scrollPosition = (collectionStoragesAdapter.getItemCount() % 2 == 0) ?
-                collectionStoragesAdapter.getItemCount() / 2 :
-                (collectionStoragesAdapter.getItemCount() / 2) + 1;
+        scrollPosition = (categoriesAdapter.getItemCount() % 2 == 0) ?
+                categoriesAdapter.getItemCount() / 2 :
+                (categoriesAdapter.getItemCount() / 2) + 1;
         recyclerView.scrollToPosition(scrollPosition);
     }
 
@@ -143,17 +165,15 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         switch (layoutManagerType) {
             case GRID_LAYOUT_MANAGER:
                 layoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
-                currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
                 if(layoutMenuItem != null) layoutMenuItem.setIcon(R.drawable.ic_view_stream_white_24dp);
                 break;
             case LINEAR_LAYOUT_MANAGER:
                 layoutManager = new LinearLayoutManager(getActivity());
-                currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
                 if(layoutMenuItem != null) layoutMenuItem.setIcon(R.drawable.ic_view_module_white_24dp);
                 break;
             default:
                 layoutManager = new LinearLayoutManager(getActivity());
-                currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+                if(layoutMenuItem != null) layoutMenuItem.setIcon(R.drawable.ic_view_module_white_24dp);
         }
 
         recyclerView.setLayoutManager(layoutManager);
@@ -165,10 +185,10 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.collections_context_menu, menu);
 
-        collectionStoragesAdapter = (CollectionStoragesAdapter) recyclerView.getAdapter();
+        categoriesAdapter = (CategoriesAdapter) recyclerView.getAdapter();
         actionMode = mode;
 
-        mode.setTitle(String.valueOf(collectionStoragesAdapter.getSelectedItemsCount()));
+        mode.setTitle(String.valueOf(categoriesAdapter.getSelectedItemsCount()));
         isActionMode = true;
         return true;
     }
@@ -185,24 +205,34 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_remove_collection:
-                deleteList = collectionStoragesAdapter.getSelectedItems();
+                deleteList = categoriesAdapter.getSelectedItems();
                 new RemoveTask(this).execute(deleteList);
-                collectionStoragesAdapter.notifyItemsRemoved();
-                Snackbar.make(getView().findViewById(R.id.coordinator), "Collections removed", Snackbar.LENGTH_LONG)
+                reloadAndScroll();
+                Snackbar.make(getView().findViewById(R.id.coordinator), "Categories removed", Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                for (CollectionStorage storage : deleteList) {
-                                    new InsertTask(CollectionStorageFragment.this, false).execute(storage);
+                                for (Category category : deleteList) {
+                                    new InsertTask(CategoriesFragment.this, false).execute(category);
                                 }
-                                collectionStoragesAdapter.notifyItemsInserted(deleteList);
+                                reloadAndScroll();
                             }
                         }).show();
                 mode.finish();
-                return true;
+                break;
             default:
-                return false;
+                break;
         }
+
+        if(categoriesAdapter.getItemCount() == 0) {
+            recyclerView.setVisibility(View.GONE);
+            emptyText.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyText.setVisibility(View.GONE);
+        }
+
+        return true;
     }
 
     @Override
@@ -210,21 +240,14 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         // TODO Deprecated method for newer versions.
 //        context.getWindow().setStatusBarColor(context.getResources().getColor(R.color.colorPrimaryDark, null));
         getActivity().getWindow().setStatusBarColor(getActivity().getResources().getColor(R.color.colorPrimaryDark));
-        collectionStoragesAdapter.deselectAll();
+        categoriesAdapter.deselectAll();
         isActionMode = false;
-        if(collectionStoragesAdapter.getItemCount() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            emptyText.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyText.setVisibility(View.GONE);
-        }
     }
 
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.collections, menu);
+        inflater.inflate(R.menu.collections_linear, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -268,43 +291,5 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     @Override
     public boolean isActionMode() {
         return isActionMode;
-    }
-
-    public void createDemoStorage(CollectionStoragesAdapter collectionStoragesAdapter) {
-        CollectionStorage storage = new CollectionStorage();
-        storage.setTitle("Vodkas");
-        storage.setDescription("Collection description.");
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        collectionStoragesAdapter.getStorages().add(storage);
-
-        CollectionStorage storage2 = new CollectionStorage();
-        storage2.setTitle("Bottle Caps");
-        storage2.setDescription("Collection description.");
-        collectionStoragesAdapter.getStorages().add(storage2);
-
-        CollectionStorage storage3 = new CollectionStorage();
-        storage3.setTitle("Shells");
-        storage3.setDescription("Collection description.");
-        storage3.setPhotoPath("3");
-        collectionStoragesAdapter.getStorages().add(storage3);
-
-        CollectionStorage storage4 = new CollectionStorage();
-        storage4.setTitle("CD's");
-        storage4.setDescription("Collection description.");
-        storage4.setPhotoPath("4");
-        collectionStoragesAdapter.getStorages().add(storage4);
-    }
-
-    private CollectionItem createDemoItem() {
-        CollectionItem item = new CollectionItem();
-        item.setTitle("Absolut");
-        item.setDescription("Sweden vodka.");
-        return item;
     }
 }
