@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by felipe.acerbi on 09/11/2015.
  */
-public class Category implements ListItem, Serializable {
+public class Category implements Serializable {
 
     private long id;
     private String title;

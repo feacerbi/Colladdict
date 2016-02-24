@@ -18,11 +18,15 @@
         android:choiceMode="multipleChoice"
         app:layoutManager="LinearLayoutManager" />
 
-    <TextView
-        android:id="@+id/empty_text"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="Add an Item."/>
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/empty_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Add an Item."/>
+    </android.support.v4.widget.NestedScrollView>
 </FrameLayout>

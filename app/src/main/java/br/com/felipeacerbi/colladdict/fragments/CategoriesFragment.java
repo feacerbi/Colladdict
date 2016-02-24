@@ -142,18 +142,6 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
         new LoadTask(this, recyclerView, emptyText, Collections.LOAD_CATEGORIES, null).execute();
     }
 
-    public void reloadAndScroll() {
-        reload();
-
-        categoriesAdapter = (CategoriesAdapter) recyclerView.getAdapter();
-        // TODO Fix scroll to position.
-        int scrollPosition = 0;
-        scrollPosition = (categoriesAdapter.getItemCount() % 2 == 0) ?
-                categoriesAdapter.getItemCount() / 2 :
-                (categoriesAdapter.getItemCount() / 2) + 1;
-        recyclerView.scrollToPosition(scrollPosition);
-    }
-
     public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {
         int scrollPosition = 0;
 
@@ -207,7 +195,7 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
             case R.id.action_remove_collection:
                 deleteList = categoriesAdapter.getSelectedItems();
                 new RemoveTask(this).execute(deleteList);
-                reloadAndScroll();
+                reload();
                 Snackbar.make(getView().findViewById(R.id.coordinator), "Categories removed", Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
@@ -215,7 +203,7 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
                                 for (Category category : deleteList) {
                                     new InsertTask(CategoriesFragment.this, false).execute(category);
                                 }
-                                reloadAndScroll();
+                                reload();
                             }
                         }).show();
                 mode.finish();

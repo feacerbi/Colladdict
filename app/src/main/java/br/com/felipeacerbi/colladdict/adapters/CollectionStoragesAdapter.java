@@ -91,7 +91,14 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
                     .load(new File(storage.getPhotoPath()))
                     .resize(300, 400)
                     .centerCrop()
-                    .error(R.drawable.shape_scrim)
+                    .error(R.drawable.shells)
+                    .into(holder.photoField);
+        } else {
+            Picasso.with(activity)
+                    .load(R.drawable.shells)
+                    .resize(300, 400)
+                    .centerCrop()
+                    .error(R.drawable.shells)
                     .into(holder.photoField);
         }
 
@@ -146,6 +153,7 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
     public void deselectAll() {
         oldSelectedPositions = selectedItems.clone();
         selectedItems.clear();
+        notifyItemsChanged();
     }
 
     public int getSelectedItemsCount(){ return selectedItems.size(); }
@@ -173,6 +181,13 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
             getStorages().add(position, items.get(i));
             notifyItemInserted(position);
             notifyItemRangeChanged(position, getItemCount());
+        }
+    }
+
+    public void notifyItemsChanged() {
+        for(int i = 0; i < getSelectedItemsCount(); i++) {
+            int position = selectedItems.keyAt(i);
+            notifyItemChanged(position);
         }
     }
 }

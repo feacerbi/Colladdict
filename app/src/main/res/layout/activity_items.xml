@@ -29,7 +29,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:fitsSystemWindows="true"
-                android:src="@drawable/absolut_vodka_bottles"
+                android:src="@drawable/shells"
                 app:layout_collapseMode="parallax"/>
 
             <TextView

@@ -66,7 +66,7 @@ public class Collections extends AppCompatActivity
         if(requestCode == REQUEST_NEW_COLLECTION_STORAGE && resultCode == Activity.RESULT_OK) {
             final CollectionStorageFragment fragment = ((CollectionStorageFragment) getSupportFragmentManager().findFragmentByTag("collection_storages"));
             final CollectionStorage storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
-            fragment.reloadAndScroll();
+            fragment.reload();
             Snackbar.make(
                     fragment.getView().findViewById(R.id.coordinator),
                     storage.getTitle() + " collection added",

@@ -111,25 +111,13 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         reload();
     }
 
     public void reload() {
         new LoadTask(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_STORAGES, null).execute();
-    }
-
-    public void reloadAndScroll() {
-        reload();
-
-        collectionStoragesAdapter = (CollectionStoragesAdapter) recyclerView.getAdapter();
-        // TODO Fix scroll to position.
-        int scrollPosition = 0;
-        scrollPosition = (collectionStoragesAdapter.getItemCount() % 2 == 0) ?
-                collectionStoragesAdapter.getItemCount() / 2 :
-                (collectionStoragesAdapter.getItemCount() / 2) + 1;
-        recyclerView.scrollToPosition(scrollPosition);
     }
 
     public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {

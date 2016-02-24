@@ -36,7 +36,7 @@
                     android:layout_gravity="center"
                     android:hint="Item Title"
                     android:background="@null"
-                    android:autoText="true" />
+                    android:capitalize="sentences" />
             </LinearLayout>
             <ImageView
                 android:layout_width="match_parent"
@@ -55,6 +55,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:hint="Item Description"
+                    android:capitalize="sentences"
                     android:background="@null" />
             </LinearLayout>
         </LinearLayout>

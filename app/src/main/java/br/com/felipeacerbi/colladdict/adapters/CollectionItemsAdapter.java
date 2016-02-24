@@ -47,6 +47,7 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
     private List<CollectionItem> items;
     private CollectionStorage storage;
     public static final int LIST_ICON_SIZE = 40;
+    private SparseBooleanArray oldSelectedPositions;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -82,6 +83,7 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         this.storage = storage;
         this.activity = context.getAppCompatActivity();
         selectedItems = new SparseBooleanArray();
+        oldSelectedPositions = new SparseBooleanArray();
     }
 
     @Override
@@ -108,7 +110,14 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
                     .load(new File(item.getPhotoPath()))
                     .resize(LIST_ICON_SIZE, LIST_ICON_SIZE)
                     .centerCrop()
-                    .error(R.drawable.shells)
+                    .error(R.drawable.beer_bottle_caps_collection)
+                    .into(holder.getPhotoField());
+        } else {
+            Picasso.with(context.getAppCompatActivity())
+                    .load(R.drawable.beer_bottle_caps_collection)
+                    .resize(LIST_ICON_SIZE, LIST_ICON_SIZE)
+                    .centerCrop()
+                    .error(R.drawable.beer_bottle_caps_collection)
                     .into(holder.getPhotoField());
         }
 
@@ -144,11 +153,14 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         });
     }
 
+    public List<CollectionItem> getItems() {
+        return items;
+    }
+
     @Override
     public int getItemCount() {
         return items.size();
     }
-
 
     public void select(int position) {
         if(selectedItems.get(position, false)) {
@@ -163,8 +175,9 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
     }
 
     public void deselectAll() {
+        oldSelectedPositions = selectedItems.clone();
         selectedItems.clear();
-        notifyDataSetChanged();
+        notifyItemsChanged();
     }
 
     public int getSelectedItemsCount(){ return selectedItems.size(); }
@@ -190,5 +203,30 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
                 .error(R.drawable.shells)
                 .into(((ImageView) mSplashDialog.findViewById(R.id.imageview_fullscreen)));
         mSplashDialog.show();
+    }
+
+    public void notifyItemsRemoved() {
+        getItems().removeAll(getSelectedItems());
+        for(int i = 0; i < getSelectedItemsCount(); i++) {
+            int position = selectedItems.keyAt(i);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, getItemCount());
+        }
+    }
+
+    public void notifyItemsInserted(List<CollectionItem> collectionItems) {
+        for(int i = 0; i < oldSelectedPositions.size(); i++) {
+            int position = oldSelectedPositions.keyAt(i);
+            getItems().add(position, collectionItems.get(i));
+            notifyItemInserted(position);
+            notifyItemRangeChanged(position, getItemCount());
+        }
+    }
+
+    public void notifyItemsChanged() {
+        for(int i = 0; i < getSelectedItemsCount(); i++) {
+            int position = selectedItems.keyAt(i);
+            notifyItemChanged(position);
+        }
     }
 }

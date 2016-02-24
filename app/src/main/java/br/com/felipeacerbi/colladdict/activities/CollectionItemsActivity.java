@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
@@ -90,7 +91,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
     public void onContentChanged() {
         super.onContentChanged();
 
-        //getWindow().setEnterTransition(new Fade());
+        getWindow().setEnterTransition(new Fade());
 
         floatButton = (FloatingActionButton) findViewById(R.id.fab);
         coverPhoto = (ImageView) findViewById(R.id.collection_photo);
@@ -99,6 +100,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
         collapToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         recyclerView = (RecyclerView) findViewById(R.id.all_items);
         emptyText = (TextView) findViewById(R.id.empty_text);
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
         coverPhoto.setTransitionName("photo");
 
@@ -126,8 +128,8 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
     }
 
     @Override
-    public void onEnterAnimationComplete() {
-        super.onEnterAnimationComplete();
+    protected void onStart() {
+        super.onStart();
         reload();
     }
 
@@ -135,19 +137,8 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
         new LoadTask(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_ITEMS, storage).execute();
     }
 
-    public void reloadAndScroll() {
-        reload();
-
-        collectionItemsAdapter = (CollectionItemsAdapter) recyclerView.getAdapter();
-        // TODO Fix scroll to position.
-        int scrollPosition = 0;
-        scrollPosition = (collectionItemsAdapter.getItemCount());
-        recyclerView.scrollToPosition(scrollPosition);
-    }
-
     public void setToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle(storage.getTitle());
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -167,7 +158,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
             Picasso.with(this)
                     .load("default")
                     .fit()
-                    .error(android.R.drawable.btn_default)
+                    .error(R.drawable.shells)
                     .into(coverPhoto);
         }
     }
@@ -185,14 +176,14 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
                         Snackbar.LENGTH_SHORT).show();
             } else if (requestCode == Collections.REQUEST_NEW_COLLECTION_ITEM) {
                 final CollectionItem item = (CollectionItem) data.getExtras().getSerializable("collection_item");
-                reloadAndScroll();
+                reload();
                 Snackbar.make(
                         findViewById(R.id.coordinator),
                         item.getTitle() + " item created",
                         Snackbar.LENGTH_SHORT).show();
             } else if (requestCode == Collections.REQUEST_MODIFY_COLLECTION_ITEM) {
                 final CollectionItem item = (CollectionItem) data.getExtras().getSerializable("collection_item");
-                reloadAndScroll();
+                reload();
                 Snackbar.make(
                         findViewById(R.id.coordinator),
                         item.getTitle() + " item modified",
@@ -229,7 +220,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
             case R.id.action_remove_collection_item:
                 deleteList = collectionItemsAdapter.getSelectedItems();
                 new RemoveTask(this).execute(deleteList);
-                reloadAndScroll();
+                collectionItemsAdapter.notifyItemsRemoved();
                 Snackbar.make(findViewById(R.id.coordinator), "Items removed", Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
@@ -237,7 +228,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
                                 for (CollectionItem item : deleteList) {
                                     new InsertTask(CollectionItemsActivity.this, false).execute(item);
                                 }
-                                reloadAndScroll();
+                                collectionItemsAdapter.notifyItemsInserted(deleteList);
                             }
                         }).show();
                 mode.finish();
@@ -252,6 +243,13 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
         toolbar.setVisibility(View.VISIBLE);
         collectionItemsAdapter.deselectAll();
         isActionMode = false;
+        if(collectionItemsAdapter.getItemCount() == 0) {
+            recyclerView.setVisibility(View.GONE);
+            emptyText.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyText.setVisibility(View.GONE);
+        }
     }
 
     @Override

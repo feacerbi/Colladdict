@@ -14,7 +14,6 @@ import java.util.List;
 import br.com.felipeacerbi.colladdict.models.Category;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
-import br.com.felipeacerbi.colladdict.models.ListItem;
 
 /**
  * Created by felipe.acerbi on 29/10/2015.
@@ -356,7 +355,6 @@ public final class CollectionsContract {
 
                 category.setId(c.getLong(c.getColumnIndex(Categories._ID)));
                 category.setTitle(c.getString(c.getColumnIndex(Categories.COLUMN_NAME_TITLE)));
-                Log.v("Acerbi", "Name: " + category.getTitle() + " Id: " + category.getId());
                 categories.add(category);
             } while(c.moveToNext());
         }
@@ -378,7 +376,7 @@ public final class CollectionsContract {
                 Categories._ID,
                 Categories.COLUMN_NAME_TITLE};
 
-        return db.query(
+        Cursor cursor = db.query(
                 Categories.TABLE_NAME,  // The table to query
                 projection,                     // The columns to return
                 null,                           // The columns for the WHERE clause
@@ -388,6 +386,22 @@ public final class CollectionsContract {
                 null                            // The sort order
         );
 
+        if(!cursor.moveToFirst()) {
+            Category defaultCategory = new Category("Default");
+            insertCategory(defaultCategory);
+
+            return db.query(
+                    Categories.TABLE_NAME,  // The table to query
+                    projection,                     // The columns to return
+                    null,                           // The columns for the WHERE clause
+                    null,                           // The values for the WHERE clause
+                    null,                           // don't group the rows
+                    null,                           // don't filter by row groups
+                    null                            // The sort order
+            );
+        } else {
+            return cursor;
+        }
     }
 
     public Category getCategory(Cursor cursor, int position) {
