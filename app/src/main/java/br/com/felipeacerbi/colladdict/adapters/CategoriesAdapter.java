@@ -17,8 +17,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +38,8 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
     private List<Category> categories;
     private SparseBooleanArray selectedItems;
     public static final int LIST_ICON_SIZE = 40;
+    private List<Category> deleteList;
+    private boolean remove;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -96,7 +96,6 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
                 categoryField.setHint(activity.getResources().getString(R.string.new_category_hint));
                 categoryField.setText(category.getTitle());
                 categoryField.requestFocus();
-
                 alertDialog.setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -119,38 +118,66 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
             }
         });
 
-        holder.getDeleteButton().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                select(position);
-                new RemoveTask(context).execute(getSelectedItems());
-                categories.remove(position);
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, getItemCount());
-                deselectAll();
-                Snackbar.make(context.getAppCompatActivity().findViewById(R.id.coordinator), category.getTitle() + " category removed", Snackbar.LENGTH_LONG)
-                        .setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                new InsertTask(context, false).execute(category);
-                                categories.add(position, category);
-                                notifyItemInserted(position);
-                                notifyItemRangeChanged(position, getItemCount());
+        if(context.isActionMode()) {
+            holder.getDeleteButton().setVisibility(View.VISIBLE);
+            holder.getDeleteButton().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    select(position);
+                    deleteList = getSelectedItems();
+                    getCategories().remove(category);
+                    notifyItemRemoved(position);
+                    notifyItemRangeChanged(position, getItemCount());
+                    remove = true;
+                    Snackbar.make(context.getAppCompatActivity().findViewById(R.id.coordinator), category.getTitle() + " category removed", Snackbar.LENGTH_LONG)
+                            .setAction("UNDO", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    add(category, position);
+                                    remove = false;
+                                }
+                            }).setCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onDismissed(Snackbar snackbar, int event) {
+                            if (remove) {
+                                new RemoveTask(context).execute(deleteList);
                             }
-                        }).show();
+                            deselectAll();
+                            super.onDismissed(snackbar, event);
+                        }
+                    }).show();
+                }
+            });
+        } else {
+            holder.getDeleteButton().setOnLongClickListener(null);
+            holder.getDeleteButton().setVisibility(View.GONE);
+        }
+
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                context.getAppCompatActivity().startSupportActionMode(context.getActionModeCallback());
+                notifyItemRangeChanged(0, getItemCount());
+                return true;
             }
         });
     }
 
-    public void add(Category category) {
-        categories.add(category);
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void add(Category category, int position) {
+        getCategories().add(position, category);
+        notifyItemInserted(position);
+        notifyItemRangeChanged(position, getItemCount());
     }
 
     @Override
     public int getItemCount() {
-        return categories.size();
+        return getCategories().size();
     }
-
 
     public void select(int position) {
         if(selectedItems.get(position, false)) {
@@ -158,22 +185,16 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
         } else {
             selectedItems.put(position, true);
         }
-
-        //int selectedCount = getSelectedItemsCount();
-        //context.getActionMode().setTitle(String.valueOf(selectedCount));
     }
 
     public void deselectAll() {
+        notifyItemRangeChanged(0, getItemCount());
         selectedItems.clear();
     }
 
-    public int getSelectedItemsCount(){ return selectedItems.size(); }
-
     public List<Category> getSelectedItems() {
-        List<Category> selectedObjects = new ArrayList<>(getSelectedItemsCount());
-        for (int i = 0; i < getSelectedItemsCount(); i++) {
-            selectedObjects.add(categories.get(selectedItems.keyAt(i)));
-        }
+        List<Category> selectedObjects = new ArrayList<>(1);
+        selectedObjects.add(getCategories().get(selectedItems.keyAt(0)));
         return selectedObjects;
     }
 }

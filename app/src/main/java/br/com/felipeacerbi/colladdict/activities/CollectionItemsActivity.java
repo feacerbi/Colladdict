@@ -1,6 +1,7 @@
 package br.com.felipeacerbi.colladdict.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -8,12 +9,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.transition.Fade;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,10 +23,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
@@ -33,9 +32,8 @@ import br.com.felipeacerbi.colladdict.adapters.CollectionItemsAdapter;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
-import br.com.felipeacerbi.colladdict.tasks.InsertTask;
-import br.com.felipeacerbi.colladdict.tasks.LoadTask;
 import br.com.felipeacerbi.colladdict.tasks.RemoveTask;
+import br.com.felipeacerbi.colladdict.ui.TransitionsListener;
 
 /**
  * Created by felipe.acerbi on 01/10/2015.
@@ -53,7 +51,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
     private CollectionItemsAdapter collectionItemsAdapter;
     private View view;
     private ImageView coverPhoto;
-    private FloatingActionButton floatButton;
+    private FloatingActionButton fab;
     private TextView collectionTitle;
     private TextView collectionDesc;
     private LinearLayout scrim;
@@ -64,6 +62,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
     private ActionMode actionMode;
     private boolean isActionMode;
     private List<CollectionItem> deleteList;
+    private boolean remove;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -84,6 +83,8 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
             storage = new CollectionStorage();
         }
 
+        getWindow().getEnterTransition().addListener(new TransitionsListener(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_ITEMS, storage));
+
         setToolbar();
     }
 
@@ -93,21 +94,15 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
 
         getWindow().setEnterTransition(new Fade());
 
-        floatButton = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         coverPhoto = (ImageView) findViewById(R.id.collection_photo);
         collectionTitle = (TextView) findViewById(R.id.collection_title);
         collectionDesc = (TextView) findViewById(R.id.collection_description);
-        collapToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         recyclerView = (RecyclerView) findViewById(R.id.all_items);
         emptyText = (TextView) findViewById(R.id.empty_text);
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
-        coverPhoto.setTransitionName("photo");
-
-        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
-        recyclerView.setItemAnimator(itemAnimator);
-
-        floatButton.setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(CollectionItemsActivity.this, NewItemActivity.class);
@@ -123,18 +118,6 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
 //                    .getSerializable(KEY_LAYOUT_MANAGER);
 //        }
         setRecyclerViewLayoutManager(currentLayoutManagerType);
-
-        CollectionItemsAdapter adapter = new CollectionItemsAdapter(this, null, storage);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        reload();
-    }
-
-    public void reload() {
-        new LoadTask(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_ITEMS, storage).execute();
     }
 
     public void setToolbar() {
@@ -149,15 +132,15 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
         });
 
         if (storage.getPhotoPath() != null) {
-            Picasso.with(this)
-                    .load(new File(storage.getPhotoPath()))
-                    .fit()
-                    .error(android.R.drawable.btn_default)
+            Glide.with(this)
+                    .load(storage.getPhotoPath())
+                    .centerCrop()
+                    .error(R.drawable.shells)
                     .into(coverPhoto);
         } else {
-            Picasso.with(this)
-                    .load("default")
-                    .fit()
+            Glide.with(this)
+                    .load(R.drawable.shells)
+                    .centerCrop()
                     .error(R.drawable.shells)
                     .into(coverPhoto);
         }
@@ -176,14 +159,14 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
                         Snackbar.LENGTH_SHORT).show();
             } else if (requestCode == Collections.REQUEST_NEW_COLLECTION_ITEM) {
                 final CollectionItem item = (CollectionItem) data.getExtras().getSerializable("collection_item");
-                reload();
+                collectionItemsAdapter.notifyNewItemInserted(item);
                 Snackbar.make(
                         findViewById(R.id.coordinator),
                         item.getTitle() + " item created",
                         Snackbar.LENGTH_SHORT).show();
             } else if (requestCode == Collections.REQUEST_MODIFY_COLLECTION_ITEM) {
                 final CollectionItem item = (CollectionItem) data.getExtras().getSerializable("collection_item");
-                reload();
+                collectionItemsAdapter.notifyItemChanged(data.getIntExtra("position", 0));
                 Snackbar.make(
                         findViewById(R.id.coordinator),
                         item.getTitle() + " item modified",
@@ -219,18 +202,24 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
         switch (menuItem.getItemId()) {
             case R.id.action_remove_collection_item:
                 deleteList = collectionItemsAdapter.getSelectedItems();
-                new RemoveTask(this).execute(deleteList);
                 collectionItemsAdapter.notifyItemsRemoved();
+                remove = true;
                 Snackbar.make(findViewById(R.id.coordinator), "Items removed", Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                for (CollectionItem item : deleteList) {
-                                    new InsertTask(CollectionItemsActivity.this, false).execute(item);
-                                }
                                 collectionItemsAdapter.notifyItemsInserted(deleteList);
+                                remove = false;
                             }
-                        }).show();
+                        }).setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        if(remove) {
+                            new RemoveTask(CollectionItemsActivity.this).execute(deleteList);
+                        }
+                        super.onDismissed(snackbar, event);
+                    }
+                }).show();
                 mode.finish();
                 return true;
             default:
@@ -243,13 +232,6 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
         toolbar.setVisibility(View.VISIBLE);
         collectionItemsAdapter.deselectAll();
         isActionMode = false;
-        if(collectionItemsAdapter.getItemCount() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            emptyText.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyText.setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -277,6 +259,12 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case R.id.action_more_info:
+                AlertDialog.Builder infoDialog = new AlertDialog.Builder(this);
+                infoDialog.setTitle(storage.getTitle())
+                        .setMessage(storage.getDescription())
+                        .show();
+                break;
             case R.id.action_edit:
                 Intent intent = new Intent(this, NewCollectionActivity.class);
                 intent.putExtra("collection_storage", storage);

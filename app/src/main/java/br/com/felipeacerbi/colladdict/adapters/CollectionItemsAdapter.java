@@ -21,7 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -106,25 +106,23 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         }
 
         if(item.getPhotoPath() != null) {
-            Picasso.with(context.getAppCompatActivity())
-                    .load(new File(item.getPhotoPath()))
-                    .resize(LIST_ICON_SIZE, LIST_ICON_SIZE)
+            Glide.with(context.getAppCompatActivity())
+                    .load(item.getPhotoPath())
                     .centerCrop()
                     .error(R.drawable.beer_bottle_caps_collection)
                     .into(holder.getPhotoField());
         } else {
-            Picasso.with(context.getAppCompatActivity())
+            Glide.with(context.getAppCompatActivity())
                     .load(R.drawable.beer_bottle_caps_collection)
-                    .resize(LIST_ICON_SIZE, LIST_ICON_SIZE)
                     .centerCrop()
                     .error(R.drawable.beer_bottle_caps_collection)
                     .into(holder.getPhotoField());
         }
 
-        holder.photoField.setOnClickListener(new View.OnClickListener() {
+        holder.getPhotoField().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(item.getPhotoPath() != null)
+                if (item.getPhotoPath() != null)
                     fullImage(item.getPhotoPath());
             }
         });
@@ -138,6 +136,7 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
                     Intent intent = new Intent(activity, NewItemActivity.class);
                     intent.putExtra("collection_item", item);
                     intent.putExtra("collection_storage", storage);
+                    intent.putExtra("position", position);
                     activity.startActivityForResult(intent, Collections.REQUEST_MODIFY_COLLECTION_ITEM);
                 }
             }
@@ -176,8 +175,8 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
 
     public void deselectAll() {
         oldSelectedPositions = selectedItems.clone();
-        selectedItems.clear();
         notifyItemsChanged();
+        selectedItems.clear();
     }
 
     public int getSelectedItemsCount(){ return selectedItems.size(); }
@@ -190,28 +189,13 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         return selectedObjects;
     }
 
-    public void fullImage(String path) {
-        Dialog mSplashDialog = new Dialog(activity);
-        mSplashDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        mSplashDialog.setContentView(R.layout.image_fullscreen);
-        mSplashDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        mSplashDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        mSplashDialog.setCancelable(true);
-        Picasso.with(activity)
-                .load(new File(path))
-                .fit()
-                .error(R.drawable.shells)
-                .into(((ImageView) mSplashDialog.findViewById(R.id.imageview_fullscreen)));
-        mSplashDialog.show();
-    }
-
     public void notifyItemsRemoved() {
-        getItems().removeAll(getSelectedItems());
         for(int i = 0; i < getSelectedItemsCount(); i++) {
             int position = selectedItems.keyAt(i);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount());
         }
+        getItems().removeAll(getSelectedItems());
     }
 
     public void notifyItemsInserted(List<CollectionItem> collectionItems) {
@@ -223,10 +207,32 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         }
     }
 
+    public void notifyNewItemInserted(CollectionItem collectionItem) {
+        getItems().add(collectionItem);
+        int position = getItemCount();
+        notifyItemInserted(position);
+        notifyItemRangeChanged(position, getItemCount());
+    }
+
     public void notifyItemsChanged() {
         for(int i = 0; i < getSelectedItemsCount(); i++) {
             int position = selectedItems.keyAt(i);
             notifyItemChanged(position);
         }
+    }
+
+    public void fullImage(String path) {
+        Dialog mSplashDialog = new Dialog(activity);
+        mSplashDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mSplashDialog.setContentView(R.layout.image_fullscreen);
+        mSplashDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        mSplashDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mSplashDialog.setCancelable(true);
+        Glide.with(activity)
+                .load(path)
+                .fitCenter()
+                .error(R.drawable.shells)
+                .into(((ImageView) mSplashDialog.findViewById(R.id.imageview_fullscreen)));
+        mSplashDialog.show();
     }
 }

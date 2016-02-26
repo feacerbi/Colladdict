@@ -91,7 +91,7 @@
                 android:background="@color/fadeImage"/>
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="72dp"
+                android:layout_height="match_parent"
                 android:paddingLeft="56dp"
                 android:orientation="horizontal">
                 <EditText
@@ -99,6 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:paddingTop="22dp"
                     android:hint="Collection Description"
                     android:capitalize="sentences"
                     android:background="@null" />

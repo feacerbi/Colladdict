@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 
@@ -38,6 +38,7 @@ public class ItemUIHelper {
     private TextView saveButton;
     private CollectionStorage storage;
     private LinearLayout photoButton;
+    private int position;
 
     public ItemUIHelper(NewItemActivity nia) {
 
@@ -132,9 +133,9 @@ public class ItemUIHelper {
     public void setPhoto(String path) {
         setPath(path);
 
-        Picasso.with(nia)
-                .load(new File(getPath()))
-                .fit()
+        Glide.with(nia)
+                .load(getPath())
+                .centerCrop()
                 .error(R.drawable.beer_bottle_caps_collection)
                 .into(photo);
     }

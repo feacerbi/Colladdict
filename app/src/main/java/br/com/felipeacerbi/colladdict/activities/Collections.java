@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -64,9 +65,9 @@ public class Collections extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_NEW_COLLECTION_STORAGE && resultCode == Activity.RESULT_OK) {
-            final CollectionStorageFragment fragment = ((CollectionStorageFragment) getSupportFragmentManager().findFragmentByTag("collection_storages"));
+            final CollectionStorageFragment fragment = ((CollectionStorageFragment) getSupportFragmentManager().findFragmentByTag("collections_fragment"));
             final CollectionStorage storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
-            fragment.reload();
+            fragment.getCollectionStoragesAdapter().notifyNewItemInserted(storage);
             Snackbar.make(
                     fragment.getView().findViewById(R.id.coordinator),
                     storage.getTitle() + " collection added",
@@ -108,9 +109,11 @@ public class Collections extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_collections) {
-            fragmentTransaction.replace(R.id.container, CollectionStorageFragment.newInstance(), "collection_storages");
+            fragmentTransaction.replace(R.id.container, CollectionStorageFragment.newInstance(), "collections_fragment");
+            setToolbarTitle("Collections");
         } else if (id == R.id.nav_categories) {
-            fragmentTransaction.replace(R.id.container, CategoriesFragment.newInstance(), "categories");
+            fragmentTransaction.replace(R.id.container, CategoriesFragment.newInstance(), "categories_fragment");
+            setToolbarTitle("Categories");
         } else if (id == R.id.nav_sett) {
 
         } else if (id == R.id.nav_search) {
@@ -122,6 +125,13 @@ public class Collections extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void setToolbarTitle(String title) {
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null) {
+            getSupportActionBar().setTitle(title);
+        }
     }
 
     public Fragment getFragment(String tag) {

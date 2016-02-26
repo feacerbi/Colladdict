@@ -3,7 +3,6 @@ package br.com.felipeacerbi.colladdict.fragments;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +10,6 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,14 +25,10 @@ import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.activities.TaskManager;
 import br.com.felipeacerbi.colladdict.adapters.CategoriesAdapter;
-import br.com.felipeacerbi.colladdict.adapters.CollectionStoragesAdapter;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.models.Category;
-import br.com.felipeacerbi.colladdict.models.CollectionItem;
-import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 import br.com.felipeacerbi.colladdict.tasks.InsertTask;
 import br.com.felipeacerbi.colladdict.tasks.LoadTask;
-import br.com.felipeacerbi.colladdict.tasks.RemoveTask;
 
 /**
  * Created by felipe.acerbi on 28/09/2015.
@@ -55,6 +49,7 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
     private List<Category> deleteList;
     private LayoutManagerType currentLayoutManagerType;
     private CategoriesAdapter categoriesAdapter;
+    private boolean remove;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -104,8 +99,7 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
                             Category category = new Category(newCategoryName);
                             new InsertTask(CategoriesFragment.this, false).execute(category);
                             categoriesAdapter = (CategoriesAdapter) recyclerView.getAdapter();
-                            categoriesAdapter.add(category);
-                            categoriesAdapter.notifyItemInserted(categoriesAdapter.getItemCount()-1);
+                            categoriesAdapter.add(category, categoriesAdapter.getItemCount());
                         }
                     }
                 })
@@ -133,8 +127,8 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onStart() {
+        super.onStart();
         reload();
     }
 
@@ -171,12 +165,13 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
     @Override
      public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.collections_context_menu, menu);
+        inflater.inflate(R.menu.categories_context_menu, menu);
 
         categoriesAdapter = (CategoriesAdapter) recyclerView.getAdapter();
+        fab.hide();
         actionMode = mode;
 
-        mode.setTitle(String.valueOf(categoriesAdapter.getSelectedItemsCount()));
+        mode.setTitle(getActivity().getResources().getString(R.string.action_remove_category));
         isActionMode = true;
         return true;
     }
@@ -192,34 +187,10 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_remove_collection:
-                deleteList = categoriesAdapter.getSelectedItems();
-                new RemoveTask(this).execute(deleteList);
-                reload();
-                Snackbar.make(getView().findViewById(R.id.coordinator), "Categories removed", Snackbar.LENGTH_LONG)
-                        .setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                for (Category category : deleteList) {
-                                    new InsertTask(CategoriesFragment.this, false).execute(category);
-                                }
-                                reload();
-                            }
-                        }).show();
+            default:
                 mode.finish();
                 break;
-            default:
-                break;
         }
-
-        if(categoriesAdapter.getItemCount() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            emptyText.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyText.setVisibility(View.GONE);
-        }
-
         return true;
     }
 
@@ -229,6 +200,7 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
 //        context.getWindow().setStatusBarColor(context.getResources().getColor(R.color.colorPrimaryDark, null));
         getActivity().getWindow().setStatusBarColor(getActivity().getResources().getColor(R.color.colorPrimaryDark));
         categoriesAdapter.deselectAll();
+        fab.show();
         isActionMode = false;
     }
 

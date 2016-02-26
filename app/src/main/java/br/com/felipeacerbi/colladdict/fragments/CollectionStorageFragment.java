@@ -11,8 +11,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Fade;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,11 +28,10 @@ import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
 import br.com.felipeacerbi.colladdict.activities.TaskManager;
 import br.com.felipeacerbi.colladdict.adapters.CollectionStoragesAdapter;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
-import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
-import br.com.felipeacerbi.colladdict.tasks.InsertTask;
 import br.com.felipeacerbi.colladdict.tasks.LoadTask;
 import br.com.felipeacerbi.colladdict.tasks.RemoveTask;
+import br.com.felipeacerbi.colladdict.ui.TransitionsListener;
 
 /**
  * Created by felipe.acerbi on 28/09/2015.
@@ -53,6 +52,7 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     private ActionMode actionMode;
     private List<CollectionStorage> deleteList;
     private LayoutManagerType currentLayoutManagerType;
+    private boolean remove = false;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -74,12 +74,13 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         isActionMode = false;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        getActivity().getWindow().setEnterTransition(new Fade());
 
         View collectionsList = inflater.inflate(R.layout.fragment_collections, container, false);
 
@@ -113,11 +114,13 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     @Override
     public void onStart() {
         super.onStart();
-        reload();
+        new LoadTask(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_STORAGES, fab).execute();
     }
 
-    public void reload() {
-        new LoadTask(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_STORAGES, null).execute();
+    @Override
+    public void onResume() {
+        super.onResume();
+        fab.show();
     }
 
     public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {
@@ -174,18 +177,24 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         switch (item.getItemId()) {
             case R.id.action_remove_collection:
                 deleteList = collectionStoragesAdapter.getSelectedItems();
-                new RemoveTask(this).execute(deleteList);
                 collectionStoragesAdapter.notifyItemsRemoved();
+                remove = true;
                 Snackbar.make(getView().findViewById(R.id.coordinator), "Collections removed", Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                for (CollectionStorage storage : deleteList) {
-                                    new InsertTask(CollectionStorageFragment.this, false).execute(storage);
-                                }
                                 collectionStoragesAdapter.notifyItemsInserted(deleteList);
+                                remove = false;
                             }
-                        }).show();
+                        }).setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        if(remove) {
+                            new RemoveTask(CollectionStorageFragment.this).execute(deleteList);
+                        }
+                        super.onDismissed(snackbar, event);
+                    }
+                }).show();
                 mode.finish();
                 return true;
             default:
@@ -200,13 +209,6 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         getActivity().getWindow().setStatusBarColor(getActivity().getResources().getColor(R.color.colorPrimaryDark));
         collectionStoragesAdapter.deselectAll();
         isActionMode = false;
-        if(collectionStoragesAdapter.getItemCount() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            emptyText.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyText.setVisibility(View.GONE);
-        }
     }
 
 
@@ -258,41 +260,7 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
         return isActionMode;
     }
 
-    public void createDemoStorage(CollectionStoragesAdapter collectionStoragesAdapter) {
-        CollectionStorage storage = new CollectionStorage();
-        storage.setTitle("Vodkas");
-        storage.setDescription("Collection description.");
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        storage.addItem(createDemoItem());
-        collectionStoragesAdapter.getStorages().add(storage);
-
-        CollectionStorage storage2 = new CollectionStorage();
-        storage2.setTitle("Bottle Caps");
-        storage2.setDescription("Collection description.");
-        collectionStoragesAdapter.getStorages().add(storage2);
-
-        CollectionStorage storage3 = new CollectionStorage();
-        storage3.setTitle("Shells");
-        storage3.setDescription("Collection description.");
-        storage3.setPhotoPath("3");
-        collectionStoragesAdapter.getStorages().add(storage3);
-
-        CollectionStorage storage4 = new CollectionStorage();
-        storage4.setTitle("CD's");
-        storage4.setDescription("Collection description.");
-        storage4.setPhotoPath("4");
-        collectionStoragesAdapter.getStorages().add(storage4);
-    }
-
-    private CollectionItem createDemoItem() {
-        CollectionItem item = new CollectionItem();
-        item.setTitle("Absolut");
-        item.setDescription("Sweden vodka.");
-        return item;
+    public CollectionStoragesAdapter getCollectionStoragesAdapter() {
+        return (CollectionStoragesAdapter) recyclerView.getAdapter();
     }
 }

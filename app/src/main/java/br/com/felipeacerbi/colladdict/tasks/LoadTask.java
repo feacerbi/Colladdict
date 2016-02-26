@@ -2,8 +2,11 @@ package br.com.felipeacerbi.colladdict.tasks;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -36,22 +39,12 @@ public class LoadTask extends AsyncTask<Void, Void, RecyclerView.Adapter> {
 
 
     public LoadTask(TaskManager tm, RecyclerView recyclerView, TextView emptyText, int type, Object object) {
-
         this.tm = tm;
         this.recyclerView = recyclerView;
         this.emptyText = emptyText;
         this.type = type;
         this.object = object;
         tm.getApp().register(this);
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-
-        progress = new ProgressDialog(tm.getAppCompatActivity());
-        progress.setMessage("Loading Collections...");
-        progress.show();
     }
 
     @Override
@@ -63,19 +56,12 @@ public class LoadTask extends AsyncTask<Void, Void, RecyclerView.Adapter> {
         switch (type) {
             case Collections.LOAD_COLLECTION_STORAGES:
                 List<CollectionStorage> storages = contract.getCollectionStorages();
-                adapter = new CollectionStoragesAdapter(tm, storages);
+                adapter = new CollectionStoragesAdapter(tm, storages, (FloatingActionButton) object);
                 break;
             case Collections.LOAD_COLLECTION_ITEMS:
-                if(object instanceof CollectionStorage) {
-                    CollectionStorage storage = (CollectionStorage) object;
-                    List<CollectionItem> items;
-                    if (storage.getId() != -1) {
-                        items = contract.getCollectionItems(storage.getId());
-                    } else {
-                        items = new ArrayList<>();
-                    }
-                    adapter = new CollectionItemsAdapter(tm, items, storage);
-                }
+                CollectionStorage storage = (CollectionStorage) object;
+                List<CollectionItem> items = contract.getCollectionItems(storage.getId());
+                adapter = new CollectionItemsAdapter(tm, items, storage);
                 break;
             case Collections.LOAD_CATEGORIES:
                 List<Category> categories = contract.getCategories();
@@ -89,19 +75,27 @@ public class LoadTask extends AsyncTask<Void, Void, RecyclerView.Adapter> {
     }
 
     @Override
-    protected void onPostExecute(RecyclerView.Adapter adapter) {
+    protected void onPostExecute(final RecyclerView.Adapter adapter) {
 
-        if(adapter.getItemCount() == 0) {
-            recyclerView.setVisibility(View.GONE);
-            emptyText.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyText.setVisibility(View.GONE);
-        }
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeChanged(int positionStart, int itemCount) {
+                super.onItemRangeChanged(positionStart, itemCount);
+                checkEmptyList(adapter);
+            }
+        });
 
         recyclerView.setAdapter(adapter);
+        checkEmptyList(adapter);
 
         tm.getApp().unregister(this);
-        progress.dismiss();
+    }
+
+    public void checkEmptyList(RecyclerView.Adapter adapter) {
+        if(adapter.getItemCount() == 0) {
+            emptyText.setVisibility(View.VISIBLE);
+        } else {
+            emptyText.setVisibility(View.GONE);
+        }
     }
 }

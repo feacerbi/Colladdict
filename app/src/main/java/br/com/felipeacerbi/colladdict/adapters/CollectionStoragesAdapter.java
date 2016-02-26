@@ -3,6 +3,7 @@ package br.com.felipeacerbi.colladdict.adapters;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,9 +24,8 @@ import java.util.List;
 
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.CollectionItemsActivity;
-import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.activities.TaskManager;
-import br.com.felipeacerbi.colladdict.fragments.CollectionStorageFragment;
+import br.com.felipeacerbi.colladdict.models.CollectionItem;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 /**
@@ -33,6 +33,7 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
  */
 public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionStoragesAdapter.ViewHolder> {
 
+    private final FloatingActionButton fab;
     private AppCompatActivity activity;
     private TaskManager context;
     private List<CollectionStorage> storages;
@@ -60,9 +61,10 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
         }
     }
 
-    public CollectionStoragesAdapter(TaskManager context, List<CollectionStorage> storages) {
+    public CollectionStoragesAdapter(TaskManager context, List<CollectionStorage> storages, FloatingActionButton fab) {
         this.context = context;
         this.storages = storages;
+        this.fab = fab;
         selectedItems = new SparseBooleanArray();
         oldSelectedPositions = new SparseBooleanArray();
         activity = context.getAppCompatActivity();
@@ -76,7 +78,7 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        final CollectionStorage storage = storages.get(position);
+        final CollectionStorage storage = getStorages().get(position);
 
         holder.getTitleField().setText(storage.getTitle());
 
@@ -87,16 +89,14 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
         }
 
         if(storage.getPhotoPath() != null) {
-            Picasso.with(activity)
-                    .load(new File(storage.getPhotoPath()))
-                    .resize(300, 400)
+            Glide.with(activity)
+                    .load(storage.getPhotoPath())
                     .centerCrop()
                     .error(R.drawable.shells)
                     .into(holder.photoField);
         } else {
-            Picasso.with(activity)
+            Glide.with(activity)
                     .load(R.drawable.shells)
-                    .resize(300, 400)
                     .centerCrop()
                     .error(R.drawable.shells)
                     .into(holder.photoField);
@@ -108,6 +108,7 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
                 if (context.isActionMode()) {
                     select(position);
                 } else {
+                    fab.hide();
                     Pair photoPair = Pair.create(holder.getPhotoField(), "photo");
                     Intent intent = new Intent(activity, CollectionItemsActivity.class);
                     intent.putExtra("collection_storage", storage);
@@ -134,7 +135,7 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
 
     @Override
     public int getItemCount() {
-        return storages.size();
+        return getStorages().size();
     }
 
 
@@ -152,8 +153,8 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
 
     public void deselectAll() {
         oldSelectedPositions = selectedItems.clone();
-        selectedItems.clear();
         notifyItemsChanged();
+        selectedItems.clear();
     }
 
     public int getSelectedItemsCount(){ return selectedItems.size(); }
@@ -161,18 +162,18 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
     public List<CollectionStorage> getSelectedItems() {
         List<CollectionStorage> selectedObjects = new ArrayList<>(getSelectedItemsCount());
         for (int i = 0; i < getSelectedItemsCount(); i++) {
-            selectedObjects.add(storages.get(selectedItems.keyAt(i)));
+            selectedObjects.add(getStorages().get(selectedItems.keyAt(i)));
         }
         return selectedObjects;
     }
 
     public void notifyItemsRemoved() {
-        getStorages().removeAll(getSelectedItems());
         for(int i = 0; i < getSelectedItemsCount(); i++) {
             int position = selectedItems.keyAt(i);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, getItemCount());
         }
+        getStorages().removeAll(getSelectedItems());
     }
 
     public void notifyItemsInserted(List<CollectionStorage> items) {
@@ -182,6 +183,13 @@ public class CollectionStoragesAdapter extends RecyclerView.Adapter<CollectionSt
             notifyItemInserted(position);
             notifyItemRangeChanged(position, getItemCount());
         }
+    }
+
+    public void notifyNewItemInserted(CollectionStorage collectionStorage) {
+        getStorages().add(collectionStorage);
+        int position = getItemCount();
+        notifyItemInserted(position);
+        notifyItemRangeChanged(position, getItemCount());
     }
 
     public void notifyItemsChanged() {

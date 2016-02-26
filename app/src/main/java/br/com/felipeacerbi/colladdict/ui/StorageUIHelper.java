@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 
@@ -172,7 +172,6 @@ public class StorageUIHelper {
         storage.setPhotoPath(getPath());
 
         return storage;
-
     }
 
     public String getPath() {
@@ -193,11 +192,10 @@ public class StorageUIHelper {
 
     public void setPhoto(String path) {
         setPath(path);
-        File test = new File(getPath());
 
-        Picasso.with(nca)
-                .load(Uri.fromFile(new File(getPath())))
-                .fit()
+        Glide.with(nca)
+                .load(getPath())
+                .centerCrop()
                 .error(R.drawable.shells)
                 .into(photo);
     }

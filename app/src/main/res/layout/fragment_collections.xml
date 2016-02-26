@@ -20,7 +20,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:gravity="center"
-        android:text="Add a Collection."/>
+        android:text="@string/empty_collection_list_text"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

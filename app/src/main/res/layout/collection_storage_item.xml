@@ -20,11 +20,12 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
                 android:id="@+id/collection_photo"
+                android:transitionName="photo"
                 android:scaleType="centerCrop"
-                android:src="@drawable/absolut_vodka_bottles"
+                android:src="@drawable/shells"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"/>
 

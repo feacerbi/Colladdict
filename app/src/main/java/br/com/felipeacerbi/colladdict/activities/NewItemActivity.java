@@ -55,6 +55,7 @@ public class NewItemActivity extends AppCompatActivity implements TaskManager {
 
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("collection_item", item);
+                returnIntent.putExtra("position", getIntent().getIntExtra("position", 0));
                 setResult(Activity.RESULT_OK, returnIntent);
 
                 finish();
