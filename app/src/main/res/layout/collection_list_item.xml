@@ -32,6 +32,18 @@
             android:textStyle="bold"
             android:textSize="20sp"
             android:text="Vodkas"/>
+            <ImageView
+                android:id="@+id/item_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_monetization_on_black_24dp"/>
+            <ImageView
+                android:id="@+id/item_rarity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/item_value"
+                android:src="@drawable/ic_whatshot_black_24dp"/>
         </RelativeLayout>
         <TextView
             android:id="@+id/item_description"

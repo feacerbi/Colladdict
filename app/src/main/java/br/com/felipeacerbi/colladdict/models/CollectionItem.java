@@ -11,6 +11,8 @@ public class CollectionItem implements Serializable {
     private String title;
     private String description;
     private String photoPath;
+    private int rarity;
+    private int value;
     private long storageId;
 
     public long getId() {
@@ -51,6 +53,22 @@ public class CollectionItem implements Serializable {
 
     public void setStorageId(long storageId) {
         this.storageId = storageId;
+    }
+
+    public int getRarity() {
+        return rarity;
+    }
+
+    public void setRarity(int rarity) {
+        this.rarity = rarity;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
     }
 
     @Override

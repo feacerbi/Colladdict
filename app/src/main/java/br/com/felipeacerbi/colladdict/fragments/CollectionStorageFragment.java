@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import java.util.List;
 
+import br.com.felipeacerbi.colladdict.Constants;
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.activities.NewCollectionActivity;
@@ -95,7 +96,7 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), NewCollectionActivity.class);
-                getActivity().startActivityForResult(intent, Collections.REQUEST_NEW_COLLECTION_STORAGE);
+                getActivity().startActivityForResult(intent, Constants.REQUEST_NEW_COLLECTION_STORAGE);
             }
         });
 
@@ -114,7 +115,7 @@ public class CollectionStorageFragment extends Fragment implements ActionMode.Ca
     @Override
     public void onStart() {
         super.onStart();
-        new LoadTask(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_STORAGES, fab).execute();
+        new LoadTask(this, recyclerView, emptyText, Constants.LOAD_COLLECTION_STORAGES, fab).execute();
     }
 
     @Override

@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import br.com.felipeacerbi.colladdict.Constants;
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.activities.TaskManager;
@@ -133,7 +134,7 @@ public class CategoriesFragment extends Fragment implements ActionMode.Callback,
     }
 
     public void reload() {
-        new LoadTask(this, recyclerView, emptyText, Collections.LOAD_CATEGORIES, null).execute();
+        new LoadTask(this, recyclerView, emptyText, Constants.LOAD_CATEGORIES, null).execute();
     }
 
     public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {

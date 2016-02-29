@@ -39,6 +39,8 @@ public final class CollectionsContract {
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_DESCRIPTION = "description";
         public static final String COLUMN_NAME_PHOTO_PATH = "photopath";
+        public static final String COLUMN_NAME_RARITY = "rarity";
+        public static final String COLUMN_NAME_VALUE = "value";
         public static final String COLUMN_NAME_STORAGE_ID = "storageid";
     }
 
@@ -67,6 +69,8 @@ public final class CollectionsContract {
                     CollectionItems.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
                     CollectionItems.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
                     CollectionItems.COLUMN_NAME_PHOTO_PATH + TEXT_TYPE + COMMA_SEP +
+                    CollectionItems.COLUMN_NAME_RARITY + INTEGER_TYPE + COMMA_SEP +
+                    CollectionItems.COLUMN_NAME_VALUE + INTEGER_TYPE + COMMA_SEP +
                     CollectionItems.COLUMN_NAME_STORAGE_ID + INTEGER_TYPE + " )";
     private static final String SQL_DELETE_ITEMS_TABLE =
             "DROP TABLE IF EXISTS " + CollectionItems.TABLE_NAME;
@@ -129,6 +133,8 @@ public final class CollectionsContract {
         values.put(CollectionItems.COLUMN_NAME_TITLE, item.getTitle());
         values.put(CollectionItems.COLUMN_NAME_DESCRIPTION, item.getDescription());
         values.put(CollectionItems.COLUMN_NAME_PHOTO_PATH, item.getPhotoPath());
+        values.put(CollectionItems.COLUMN_NAME_RARITY, item.getRarity());
+        values.put(CollectionItems.COLUMN_NAME_VALUE, item.getValue());
         values.put(CollectionItems.COLUMN_NAME_STORAGE_ID, item.getStorageId());
 
         return db.insert(
@@ -220,6 +226,8 @@ public final class CollectionsContract {
         values.put(CollectionItems.COLUMN_NAME_TITLE, item.getTitle());
         values.put(CollectionItems.COLUMN_NAME_DESCRIPTION, item.getDescription());
         values.put(CollectionItems.COLUMN_NAME_PHOTO_PATH, item.getPhotoPath());
+        values.put(CollectionItems.COLUMN_NAME_RARITY, item.getRarity());
+        values.put(CollectionItems.COLUMN_NAME_VALUE, item.getValue());
         values.put(CollectionItems.COLUMN_NAME_STORAGE_ID, item.getStorageId());
 
         String selection = CollectionItems._ID + " LIKE ?";
@@ -306,6 +314,8 @@ public final class CollectionsContract {
                 CollectionItems.COLUMN_NAME_TITLE,
                 CollectionItems.COLUMN_NAME_DESCRIPTION,
                 CollectionItems.COLUMN_NAME_PHOTO_PATH,
+                CollectionItems.COLUMN_NAME_RARITY,
+                CollectionItems.COLUMN_NAME_VALUE,
                 CollectionItems.COLUMN_NAME_STORAGE_ID};
 
         String selection = null;
@@ -334,6 +344,8 @@ public final class CollectionsContract {
                     item.setTitle(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_TITLE)));
                     item.setDescription(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_DESCRIPTION)));
                     item.setPhotoPath(c.getString(c.getColumnIndex(CollectionItems.COLUMN_NAME_PHOTO_PATH)));
+                    item.setRarity(c.getInt(c.getColumnIndex(CollectionItems.COLUMN_NAME_RARITY)));
+                    item.setValue(c.getInt(c.getColumnIndex(CollectionItems.COLUMN_NAME_VALUE)));
                     item.setStorageId(c.getInt(c.getColumnIndex(CollectionItems.COLUMN_NAME_STORAGE_ID)));
 
                     items.add(item);

@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import br.com.felipeacerbi.colladdict.Constants;
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.fragments.CategoriesFragment;
@@ -25,17 +26,6 @@ import br.com.felipeacerbi.colladdict.models.CollectionStorage;
 
 public class Collections extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
-    public static final int LOAD_COLLECTION_STORAGES = 0;
-    public static final int LOAD_COLLECTION_ITEMS = 1;
-    public static final int LOAD_CATEGORIES = 2;
-
-    public static final int REQUEST_NEW_COLLECTION_STORAGE = 100;
-    public static final int REQUEST_MODIFY_COLLECTION_STORAGE = 101;
-    public static final int REQUEST_NEW_COLLECTION_ITEM = 102;
-    public static final int REQUEST_MODIFY_COLLECTION_ITEM = 103;
-    public static final int TAKE_PICTURE = 104;
-    public static final int BROWSE = 105;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +54,7 @@ public class Collections extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_NEW_COLLECTION_STORAGE && resultCode == Activity.RESULT_OK) {
+        if(requestCode == Constants.REQUEST_NEW_COLLECTION_STORAGE && resultCode == Activity.RESULT_OK) {
             final CollectionStorageFragment fragment = ((CollectionStorageFragment) getSupportFragmentManager().findFragmentByTag("collections_fragment"));
             final CollectionStorage storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
             fragment.getCollectionStoragesAdapter().notifyNewItemInserted(storage);

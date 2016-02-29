@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+import br.com.felipeacerbi.colladdict.Constants;
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.adapters.CollectionItemsAdapter;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
@@ -83,7 +84,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
             storage = new CollectionStorage();
         }
 
-        getWindow().getEnterTransition().addListener(new TransitionsListener(this, recyclerView, emptyText, Collections.LOAD_COLLECTION_ITEMS, storage));
+        getWindow().getEnterTransition().addListener(new TransitionsListener(this, recyclerView, emptyText, Constants.LOAD_COLLECTION_ITEMS, storage));
 
         setToolbar();
     }
@@ -107,7 +108,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
             public void onClick(View view) {
                 Intent intent = new Intent(CollectionItemsActivity.this, NewItemActivity.class);
                 intent.putExtra("collection_storage", storage);
-                startActivityForResult(intent, Collections.REQUEST_NEW_COLLECTION_ITEM);
+                startActivityForResult(intent, Constants.REQUEST_NEW_COLLECTION_ITEM);
             }
         });
 
@@ -150,21 +151,21 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
      protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == Collections.REQUEST_MODIFY_COLLECTION_STORAGE) {
+            if (requestCode == Constants.REQUEST_MODIFY_COLLECTION_STORAGE) {
                 storage = (CollectionStorage) data.getExtras().getSerializable("collection_storage");
                 setToolbar();
                 Snackbar.make(
                         findViewById(R.id.coordinator),
                         storage.getTitle() + " collection modified",
                         Snackbar.LENGTH_SHORT).show();
-            } else if (requestCode == Collections.REQUEST_NEW_COLLECTION_ITEM) {
+            } else if (requestCode == Constants.REQUEST_NEW_COLLECTION_ITEM) {
                 final CollectionItem item = (CollectionItem) data.getExtras().getSerializable("collection_item");
                 collectionItemsAdapter.notifyNewItemInserted(item);
                 Snackbar.make(
                         findViewById(R.id.coordinator),
                         item.getTitle() + " item created",
                         Snackbar.LENGTH_SHORT).show();
-            } else if (requestCode == Collections.REQUEST_MODIFY_COLLECTION_ITEM) {
+            } else if (requestCode == Constants.REQUEST_MODIFY_COLLECTION_ITEM) {
                 final CollectionItem item = (CollectionItem) data.getExtras().getSerializable("collection_item");
                 collectionItemsAdapter.notifyItemChanged(data.getIntExtra("position", 0));
                 Snackbar.make(
@@ -268,7 +269,7 @@ public class CollectionItemsActivity extends AppCompatActivity implements Action
             case R.id.action_edit:
                 Intent intent = new Intent(this, NewCollectionActivity.class);
                 intent.putExtra("collection_storage", storage);
-                startActivityForResult(intent, Collections.REQUEST_MODIFY_COLLECTION_STORAGE);
+                startActivityForResult(intent, Constants.REQUEST_MODIFY_COLLECTION_STORAGE);
                 break;
             case R.id.action_change_layout:
                 currentLayoutManagerType = (currentLayoutManagerType == LayoutManagerType.LINEAR_LAYOUT_MANAGER) ?

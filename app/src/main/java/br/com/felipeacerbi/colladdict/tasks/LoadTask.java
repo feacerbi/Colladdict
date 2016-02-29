@@ -13,6 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.felipeacerbi.colladdict.Constants;
 import br.com.felipeacerbi.colladdict.activities.Collections;
 import br.com.felipeacerbi.colladdict.activities.TaskManager;
 import br.com.felipeacerbi.colladdict.adapters.CategoriesAdapter;
@@ -54,16 +55,16 @@ public class LoadTask extends AsyncTask<Void, Void, RecyclerView.Adapter> {
         RecyclerView.Adapter adapter = null;
 
         switch (type) {
-            case Collections.LOAD_COLLECTION_STORAGES:
+            case Constants.LOAD_COLLECTION_STORAGES:
                 List<CollectionStorage> storages = contract.getCollectionStorages();
                 adapter = new CollectionStoragesAdapter(tm, storages, (FloatingActionButton) object);
                 break;
-            case Collections.LOAD_COLLECTION_ITEMS:
+            case Constants.LOAD_COLLECTION_ITEMS:
                 CollectionStorage storage = (CollectionStorage) object;
                 List<CollectionItem> items = contract.getCollectionItems(storage.getId());
                 adapter = new CollectionItemsAdapter(tm, items, storage);
                 break;
-            case Collections.LOAD_CATEGORIES:
+            case Constants.LOAD_CATEGORIES:
                 List<Category> categories = contract.getCategories();
                 adapter = new CategoriesAdapter(tm, categories);
                 break;

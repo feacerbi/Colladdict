@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import java.io.File;
 
+import br.com.felipeacerbi.colladdict.Constants;
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.app.CollectionsApplication;
 import br.com.felipeacerbi.colladdict.models.CollectionStorage;
@@ -79,9 +80,9 @@ public class NewCollectionActivity extends AppCompatActivity implements TaskMana
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == Activity.RESULT_OK) {
-            if(requestCode == Collections.TAKE_PICTURE) {
+            if(requestCode == Constants.TAKE_PICTURE) {
                 uiHelper.setPhoto(uiHelper.getExtPath());
-            } else if(requestCode == Collections.BROWSE) {
+            } else if(requestCode == Constants.BROWSE) {
                 uiHelper.setPhoto(uiHelper.getBitmapPath(data));
             }
         }
@@ -103,7 +104,7 @@ public class NewCollectionActivity extends AppCompatActivity implements TaskMana
                 uiHelper.setExtPath(getExternalFilesDir(null) + "/" + System.currentTimeMillis() + ".jpg");
                 cam.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(uiHelper.getExtPath())));
                 if(cam.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(cam, Collections.TAKE_PICTURE);
+                    startActivityForResult(cam, Constants.TAKE_PICTURE);
                 } else {
                     Snackbar.make(findViewById(R.id.coordinator), "No Camera app found", Snackbar.LENGTH_SHORT).show();
                 }
@@ -111,7 +112,7 @@ public class NewCollectionActivity extends AppCompatActivity implements TaskMana
             case R.id.action_gallery:
                 Intent gal = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 if(gal.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(gal, Collections.BROWSE);
+                    startActivityForResult(gal, Constants.BROWSE);
                 } else {
                     Snackbar.make(findViewById(R.id.coordinator), "No Gallery app found", Snackbar.LENGTH_SHORT).show();
                 }

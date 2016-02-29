@@ -27,6 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.felipeacerbi.colladdict.Constants;
 import br.com.felipeacerbi.colladdict.R;
 import br.com.felipeacerbi.colladdict.activities.CollectionItemsActivity;
 import br.com.felipeacerbi.colladdict.activities.Collections;
@@ -46,7 +47,6 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
     private final SparseBooleanArray selectedItems;
     private List<CollectionItem> items;
     private CollectionStorage storage;
-    public static final int LIST_ICON_SIZE = 40;
     private SparseBooleanArray oldSelectedPositions;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -54,6 +54,8 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
         private final TextView titleField;
         private final ImageView photoField;
         private final TextView descField;
+        private final ImageView valueIcon;
+        private final ImageView rarityIcon;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -61,6 +63,8 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
             titleField = (TextView) itemView.findViewById(R.id.item_title);
             descField = (TextView) itemView.findViewById(R.id.item_description);
             photoField = (ImageView) itemView.findViewById(R.id.item_image);
+            valueIcon = (ImageView) itemView.findViewById(R.id.item_value);
+            rarityIcon = (ImageView) itemView.findViewById(R.id.item_rarity);
 
         }
 
@@ -74,6 +78,14 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
 
         public ImageView getPhotoField() {
             return photoField;
+        }
+
+        public ImageView getRarityIcon() {
+            return rarityIcon;
+        }
+
+        public ImageView getValueIcon() {
+            return valueIcon;
         }
     }
 
@@ -119,6 +131,14 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
                     .into(holder.getPhotoField());
         }
 
+        Glide.with(context.getAppCompatActivity())
+                .load(getRarityIcon(item.getRarity()))
+                .into(holder.getRarityIcon());
+
+        Glide.with(context.getAppCompatActivity())
+                .load(getValueIcon(item.getValue()))
+                .into(holder.getValueIcon());
+
         holder.getPhotoField().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,7 +157,7 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
                     intent.putExtra("collection_item", item);
                     intent.putExtra("collection_storage", storage);
                     intent.putExtra("position", position);
-                    activity.startActivityForResult(intent, Collections.REQUEST_MODIFY_COLLECTION_ITEM);
+                    activity.startActivityForResult(intent, Constants.REQUEST_MODIFY_COLLECTION_ITEM);
                 }
             }
         });
@@ -219,6 +239,56 @@ public class CollectionItemsAdapter extends RecyclerView.Adapter<CollectionItems
             int position = selectedItems.keyAt(i);
             notifyItemChanged(position);
         }
+    }
+
+    public int getRarityIcon(int rarity) {
+        int icon = -1;
+        switch(rarity) {
+            case Constants.RARITY_VERY_COMMON:
+                icon = R.drawable.ic_whatshot_black_24dp;
+                break;
+            case Constants.RARITY_COMMON:
+                icon = R.drawable.ic_whatshot_black_24dp;
+                break;
+            case Constants.RARITY_RARE:
+                icon = R.drawable.ic_whatshot_black_24dp;
+                break;
+            case Constants.RARITY_VERY_RARE:
+                icon = R.drawable.ic_whatshot_black_24dp;
+                break;
+            case Constants.RARITY_UNIQUE:
+                icon = R.drawable.ic_whatshot_black_24dp;
+                break;
+            default:
+                icon = R.drawable.ic_whatshot_black_24dp;
+        }
+
+        return icon;
+    }
+
+    public int getValueIcon(int value) {
+        int icon = -1;
+        switch(value) {
+            case Constants.VALUE_CHEAP:
+                icon = R.drawable.ic_monetization_on_black_24dp;
+                break;
+            case Constants.VALUE_NORMAL:
+                icon = R.drawable.ic_monetization_on_black_24dp;
+                break;
+            case Constants.VALUE_EXPENSIVE:
+                icon = R.drawable.ic_monetization_on_black_24dp;
+                break;
+            case Constants.VALUE_VERY_EXPENSIVE:
+                icon = R.drawable.ic_monetization_on_black_24dp;
+                break;
+            case Constants.VALUE_UNAFFORDABLE:
+                icon = R.drawable.ic_monetization_on_black_24dp;
+                break;
+            default:
+                icon = R.drawable.ic_monetization_on_black_24dp;
+        }
+
+        return icon;
     }
 
     public void fullImage(String path) {
